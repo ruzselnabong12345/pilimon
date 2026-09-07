@@ -515,6 +515,78 @@
       max-width: 350px;
       flex-grow: 1;
     }
+
+    /* Styles for Tab 7: Product Update Instructions */
+    .instruction-step {
+      background: rgba(18, 33, 55, 0.6);
+      border-left: 4px solid var(--accent-cyan);
+      padding: 16px;
+      border-radius: 0 8px 8px 0;
+      margin-bottom: 20px;
+    }
+
+    .instruction-step h3 {
+      margin-top: 0;
+      font-size: 1.05rem;
+      color: var(--accent-cyan);
+    }
+
+    .code-block {
+      position: relative;
+      background: #09111E;
+      border: 1px solid var(--card-border);
+      border-radius: 6px;
+      padding: 14px;
+      font-family: monospace;
+      font-size: 0.85rem;
+      color: #00ff66;
+      white-space: pre-wrap;
+      word-break: break-all;
+      max-height: 250px;
+      overflow-y: auto;
+      margin-top: 8px;
+    }
+
+    .code-title {
+      font-weight: 700;
+      color: var(--accent-blue);
+      margin-top: 16px;
+      margin-bottom: 6px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .code-copy-btn {
+      background-color: var(--accent-blue);
+      color: #ffffff;
+      border: none;
+      padding: 5px 12px;
+      font-size: 11px;
+      font-weight: 700;
+      border-radius: 4px;
+      cursor: pointer;
+      transition: all 0.2s ease;
+    }
+
+    .code-copy-btn:hover {
+      box-shadow: 0 0 10px rgba(0, 148, 255, 0.5);
+    }
+
+    .code-copy-btn.copied {
+      background-color: var(--accent-cyan);
+      color: var(--bg-dark);
+    }
+
+    ol.setup-list {
+      padding-left: 20px;
+      line-height: 1.7;
+    }
+
+    ol.setup-list li {
+      margin-bottom: 8px;
+      color: var(--text-main);
+    }
   </style>
 </head>
 <body>
@@ -531,6 +603,7 @@
     <button class="tab-btn" onclick="switchTab(event, 'tab-questions')">Custom Questions Separator</button>
     <button class="tab-btn" onclick="switchTab(event, 'tab-fixer')">CSV Character Fixer</button>
     <button class="tab-btn" onclick="switchTab(event, 'tab-checker')">Review Type Checker</button>
+    <button class="tab-btn" onclick="switchTab(event, 'tab-update')">Product Update</button>
   </div>
 
   <!-- TAB 1: UTOKEN RETRIEVER -->
@@ -850,7 +923,640 @@
     </div>
   </div>
 
+  <!-- TAB 7: PRODUCT UPDATE EXTENSION INSTRUCTIONS -->
+  <div id="tab-update" class="tab-content">
+    <div class="card" style="max-width: 900px; margin: 0 auto;">
+      <h2>Yotpo Product Retriever & Updater Extension Setup</h2>
+      <p style="color: var(--text-muted); font-size: 0.9rem; line-height: 1.5;">
+        Follow the instructions below to create and install your custom Chrome extension for retrieving and updating Yotpo product metadata.
+      </p>
+
+      <div class="instruction-step">
+        <h3>Step 1: Create local folder</h3>
+        <p style="font-size: 0.88rem;">Create a new folder on your computer (e.g., <code>yotpo-updater-extension</code>).</p>
+      </div>
+
+      <div class="instruction-step">
+        <h3>Step 2: Create required extension files</h3>
+        <p style="font-size: 0.88rem;">Inside that folder, create the following 3 files using Notepad or a text editor:</p>
+
+        <!-- FILE 1: manifest.json -->
+        <div class="code-title">
+          <span>1. manifest.json</span>
+          <button class="code-copy-btn" onclick="copyCodeBlock('code-manifest', this)">Copy Code</button>
+        </div>
+        <div id="code-manifest" class="code-block">{
+  "manifest_version": 3,
+  "name": "Yotpo Product Retriever & Updater",
+  "version": "1.0",
+  "description": "Retrieve and update Yotpo product metadata.",
+  "action": {
+    "default_popup": "popup.html",
+    "default_title": "Yotpo Updater"
+  },
+  "permissions": [
+    "activeTab"
+  ],
+  "host_permissions": [
+    "https://api.yotpo.com/*"
+  ]
+}</div>
+
+        <!-- FILE 2: popup.html -->
+        <div class="code-title">
+          <span>2. popup.html</span>
+          <button class="code-copy-btn" onclick="copyCodeBlock('code-html', this)">Copy Code</button>
+        </div>
+        <div id="code-html" class="code-block">&lt;!DOCTYPE html&gt;
+&lt;html lang="en"&gt;
+&lt;head&gt;
+    &lt;meta charset="UTF-8"&gt;
+    &lt;meta name="viewport" content="width=device-width, initial-scale=1.0"&gt;
+    &lt;title&gt;Yotpo Product Retriever &amp; Updater&lt;/title&gt;
+    &lt;style&gt;
+        :root {
+            --bg-dark: #0D182A;
+            --card-bg: rgba(21, 35, 56, 0.9);
+            --card-border: #1E314B;
+            --accent-cyan: #00E6BB;
+            --accent-blue: #0094FF;
+            --text-main: #FFFFFF;
+            --text-muted: #8E9BAE;
+        }
+
+        * {
+            box-sizing: border-box;
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+        }
+
+        body {
+            margin: 0;
+            padding: 15px;
+            background-color: var(--bg-dark);
+            color: var(--text-main);
+            width: 480px;
+            min-height: 500px;
+        }
+
+        .container {
+            width: 100%;
+        }
+
+        .app-header {
+            margin-bottom: 16px;
+        }
+
+        .app-header h1 {
+            font-size: 18px;
+            margin: 0 0 4px 0;
+            font-weight: 700;
+            letter-spacing: 0.5px;
+            text-transform: uppercase;
+        }
+
+        .subtitle {
+            color: var(--accent-cyan);
+            font-size: 11px;
+            font-weight: 600;
+            letter-spacing: 1.2px;
+            text-transform: uppercase;
+            margin: 0;
+        }
+
+        .card {
+            background: var(--card-bg);
+            border: 1px solid var(--card-border);
+            border-radius: 8px;
+            padding: 14px;
+            box-shadow: 0 4px 16px rgba(0, 0, 0, 0.3);
+            margin-bottom: 12px;
+        }
+
+        h2 {
+            margin-top: 0;
+            color: var(--text-main);
+            border-bottom: 1px solid var(--card-border);
+            padding-bottom: 6px;
+            font-size: 0.95rem;
+        }
+
+        .grid {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 10px;
+        }
+
+        .form-group {
+            margin-bottom: 8px;
+        }
+
+        label {
+            display: block;
+            font-weight: 600;
+            margin-bottom: 4px;
+            font-size: 0.75rem;
+            color: var(--text-muted);
+        }
+
+        input[type="text"], input[type="number"], select, textarea {
+            width: 100%;
+            padding: 7px 10px;
+            border: 1px solid var(--card-border);
+            border-radius: 4px;
+            font-size: 0.82rem;
+            background-color: #122137;
+            color: var(--text-main);
+            transition: all 0.2s ease;
+        }
+
+        input:focus, select:focus, textarea:focus {
+            outline: none;
+            border-color: var(--accent-cyan);
+            box-shadow: 0 0 0 2px rgba(0, 230, 187, 0.2);
+        }
+
+        .btn {
+            width: 100%;
+            padding: 9px 14px;
+            font-size: 13px;
+            font-weight: 700;
+            letter-spacing: 0.5px;
+            background-color: var(--accent-cyan);
+            color: var(--bg-dark);
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            box-shadow: 0 0 10px rgba(0, 230, 187, 0.2);
+            transition: all 0.2s ease;
+        }
+
+        .btn:hover:not(:disabled) {
+            box-shadow: 0 0 15px rgba(0, 230, 187, 0.5);
+        }
+
+        .btn:disabled {
+            background-color: var(--card-border);
+            color: var(--text-muted);
+            cursor: not-allowed;
+            opacity: 0.6;
+        }
+
+        .btn-update {
+            background-color: var(--accent-blue);
+            color: #ffffff;
+            box-shadow: 0 0 10px rgba(0, 148, 255, 0.2);
+        }
+
+        .btn-update:hover:not(:disabled) {
+            box-shadow: 0 0 15px rgba(0, 148, 255, 0.5);
+        }
+
+        .checkbox-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 8px;
+            margin-top: 8px;
+        }
+
+        .checkbox-item {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            background: rgba(18, 33, 55, 0.5);
+            padding: 6px 10px;
+            border-radius: 4px;
+            border: 1px solid var(--card-border);
+            cursor: pointer;
+            font-size: 0.78rem;
+        }
+
+        .checkbox-item input {
+            cursor: pointer;
+            accent-color: var(--accent-cyan);
+        }
+
+        .status {
+            margin-top: 8px;
+            font-size: 0.8rem;
+            font-weight: 600;
+            color: var(--accent-cyan);
+        }
+
+        .status.error {
+            color: #ff6b6b;
+        }
+
+        .response-area {
+            margin-top: 8px;
+            background: #09111E;
+            color: #00ff66;
+            border: 1px solid var(--card-border);
+            padding: 10px;
+            border-radius: 4px;
+            font-family: monospace;
+            white-space: pre-wrap;
+            word-break: break-all;
+            max-height: 180px;
+            overflow-y: auto;
+            font-size: 0.78rem;
+        }
+
+        .response-area.error-mode {
+            color: #ff6b6b;
+            border-color: #ff4d4d;
+        }
+
+        textarea.payload-preview {
+            font-family: monospace;
+            height: 160px;
+            background-color: #09111E;
+            color: var(--accent-cyan);
+        }
+
+        .hidden {
+            display: none;
+        }
+    &lt;/style&gt;
+&lt;/head&gt;
+&lt;body&gt;
+
+&lt;div class="container"&gt;
+    &lt;div class="app-header"&gt;
+        &lt;p class="subtitle"&gt;RJRN Tool Suite&lt;/p&gt;
+        &lt;h1&gt;Yotpo Product Retriever &amp; Updater&lt;/h1&gt;
+    &lt;/div&gt;
+
+    &lt;!-- Step 1: Credentials &amp; Retrieval --&gt;
+    &lt;div class="card"&gt;
+        &lt;h2&gt;1. Product API Credentials&lt;/h2&gt;
+        &lt;div class="grid"&gt;
+            &lt;div class="form-group"&gt;
+                &lt;label for="storeId"&gt;Store ID:&lt;/label&gt;
+                &lt;input type="text" id="storeId" placeholder="e.g. store_12345"&gt;
+            &lt;/div&gt;
+            &lt;div class="form-group"&gt;
+                &lt;label for="uToken"&gt;uToken:&lt;/label&gt;
+                &lt;input type="text" id="uToken" placeholder="Enter uToken"&gt;
+            &lt;/div&gt;
+            &lt;div class="form-group"&gt;
+                &lt;label for="productId"&gt;Yotpo Product ID:&lt;/label&gt;
+                &lt;input type="text" id="productId" placeholder="e.g. 12345678"&gt;
+            &lt;/div&gt;
+        &lt;/div&gt;
+
+        &lt;button id="fetchBtn" class="btn"&gt;Retrieve Product Data&lt;/button&gt;
+        &lt;div id="fetchStatus" class="status"&gt;&lt;/div&gt;
+    &lt;/div&gt;
+
+    &lt;!-- Retrieved Product Preview Section --&gt;
+    &lt;div id="productPreviewCard" class="card hidden"&gt;
+        &lt;h2&gt;Retrieved Product Preview&lt;/h2&gt;
+        &lt;div id="productPreviewData" class="response-area" style="max-height: 200px; color: #00E6BB;"&gt;&lt;/div&gt;
+    &lt;/div&gt;
+
+    &lt;!-- Step 2: Attribute Selection --&gt;
+    &lt;div id="stepSelection" class="card hidden"&gt;
+        &lt;h2&gt;2. Select Attributes to Update&lt;/h2&gt;
+        &lt;p style="font-size: 0.75rem; color: var(--text-muted); margin-bottom: 8px;"&gt;
+            Check the attributes you wish to modify.
+        &lt;/p&gt;
+
+        &lt;div class="checkbox-grid"&gt;
+            &lt;label class="checkbox-item"&gt;&lt;input type="checkbox" class="attr-checkbox" value="name"&gt; name&lt;/label&gt;
+            &lt;label class="checkbox-item"&gt;&lt;input type="checkbox" class="attr-checkbox" value="description"&gt; description&lt;/label&gt;
+            &lt;label class="checkbox-item"&gt;&lt;input type="checkbox" class="attr-checkbox" value="status"&gt; status&lt;/label&gt;
+            &lt;label class="checkbox-item"&gt;&lt;input type="checkbox" class="attr-checkbox" value="url"&gt; url&lt;/label&gt;
+            &lt;label class="checkbox-item"&gt;&lt;input type="checkbox" class="attr-checkbox" value="image_url"&gt; image_url&lt;/label&gt;
+            &lt;label class="checkbox-item"&gt;&lt;input type="checkbox" class="attr-checkbox" value="price"&gt; price&lt;/label&gt;
+            &lt;label class="checkbox-item"&gt;&lt;input type="checkbox" class="attr-checkbox" value="compare_at_price"&gt; compare_at_price&lt;/label&gt;
+            &lt;label class="checkbox-item"&gt;&lt;input type="checkbox" class="attr-checkbox" value="currency"&gt; currency&lt;/label&gt;
+            &lt;label class="checkbox-item"&gt;&lt;input type="checkbox" class="attr-checkbox" value="inventory_quantity"&gt; inventory_quantity&lt;/label&gt;
+            &lt;label class="checkbox-item"&gt;&lt;input type="checkbox" class="attr-checkbox" value="is_discontinued"&gt; is_discontinued&lt;/label&gt;
+            &lt;label class="checkbox-item"&gt;&lt;input type="checkbox" class="attr-checkbox" value="group_name"&gt; group_name&lt;/label&gt;
+            &lt;label class="checkbox-item"&gt;&lt;input type="checkbox" class="attr-checkbox" value="brand"&gt; brand&lt;/label&gt;
+            &lt;label class="checkbox-item"&gt;&lt;input type="checkbox" class="attr-checkbox" value="sku"&gt; sku&lt;/label&gt;
+            &lt;label class="checkbox-item"&gt;&lt;input type="checkbox" class="attr-checkbox" value="mpn"&gt; mpn&lt;/label&gt;
+            &lt;label class="checkbox-item"&gt;&lt;input type="checkbox" class="attr-checkbox" value="gtins"&gt; gtins&lt;/label&gt;
+            &lt;label class="checkbox-item"&gt;&lt;input type="checkbox" class="attr-checkbox" value="custom_properties"&gt; custom_properties&lt;/label&gt;
+        &lt;/div&gt;
+
+        &lt;button id="continueBtn" class="btn" style="margin-top: 12px;"&gt;Continue to Edit Payload&lt;/button&gt;
+    &lt;/div&gt;
+
+    &lt;!-- Step 3: Edit Selected Attributes &amp; Preview Payload --&gt;
+    &lt;div id="stepEdit" class="card hidden"&gt;
+        &lt;h2&gt;3. Edit Values &amp; Preview Update Payload&lt;/h2&gt;
+        
+        &lt;div id="fieldsContainer" class="grid" style="margin-bottom: 12px;"&gt;&lt;/div&gt;
+
+        &lt;label for="jsonPreview"&gt;Generated Payload (Editable JSON):&lt;/label&gt;
+        &lt;textarea id="jsonPreview" class="payload-preview"&gt;&lt;/textarea&gt;
+
+        &lt;div style="margin-top: 10px;"&gt;
+            &lt;button id="updateBtn" class="btn btn-update"&gt;Update Product&lt;/button&gt;
+            &lt;div id="updateStatus" class="status"&gt;&lt;/div&gt;
+        &lt;/div&gt;
+
+        &lt;h3 style="font-size: 0.85rem; margin-top: 12px; margin-bottom: 4px;"&gt;API Response Log&lt;/h3&gt;
+        &lt;div id="responseLog" class="response-area"&gt;Waiting for update execution...&lt;/div&gt;
+    &lt;/div&gt;
+&lt;/div&gt;
+
+&lt;script src="popup.js"&gt;&lt;/script&gt;
+&lt;/body&gt;
+&lt;/html&gt;</div>
+
+        <!-- FILE 3: popup.js -->
+        <div class="code-title">
+          <span>3. popup.js</span>
+          <button class="code-copy-btn" onclick="copyCodeBlock('code-js', this)">Copy Code</button>
+        </div>
+        <div id="code-js" class="code-block">let fetchedProductData = null;
+
+document.addEventListener('DOMContentLoaded', () => {
+    document.getElementById('fetchBtn').addEventListener('click', fetchProduct);
+    document.getElementById('continueBtn').addEventListener('click', buildFormAndPreview);
+    document.getElementById('updateBtn').addEventListener('click', submitProductUpdate);
+    document.getElementById('jsonPreview').addEventListener('input', validateManualJson);
+});
+
+async function fetchProduct() {
+    const storeId = document.getElementById('storeId').value.trim();
+    const uToken = document.getElementById('uToken').value.trim();
+    const productId = document.getElementById('productId').value.trim();
+    const statusEl = document.getElementById('fetchStatus');
+    const previewCard = document.getElementById('productPreviewCard');
+    const previewData = document.getElementById('productPreviewData');
+
+    if (!storeId || !uToken || !productId) {
+        statusEl.className = 'status error';
+        statusEl.innerText = 'Please provide Store ID, uToken, and Product ID.';
+        return;
+    }
+
+    statusEl.className = 'status';
+    statusEl.innerText = 'Retrieving product data...';
+
+    const endpoint = `https://api.yotpo.com/core/v3/stores/${storeId}/products/${productId}?utoken=${uToken}`;
+
+    try {
+        const response = await fetch(endpoint, {
+            method: 'GET',
+            headers: { 'Accept': 'application/json' }
+        });
+
+        const data = await response.json();
+
+        if (response.ok) {
+            fetchedProductData = data.product || data.yotpo_product || data;
+            statusEl.className = 'status';
+            statusEl.innerText = 'Product retrieved successfully!';
+            
+            previewData.innerText = JSON.stringify(fetchedProductData, null, 2);
+            previewCard.classList.remove('hidden');
+
+            document.getElementById('stepSelection').classList.remove('hidden');
+            document.getElementById('stepEdit').classList.add('hidden');
+        } else {
+            statusEl.className = 'status error';
+            statusEl.innerText = `Error (${response.status}): ` + (data.message || JSON.stringify(data));
+            previewCard.classList.add('hidden');
+        }
+    } catch (err) {
+        statusEl.className = 'status error';
+        statusEl.innerText = 'Network Error: ' + err.message;
+        previewCard.classList.add('hidden');
+    }
+}
+
+function buildFormAndPreview() {
+    const checkboxes = document.querySelectorAll('.attr-checkbox:checked');
+    if (checkboxes.length === 0) {
+        alert('Please select at least one attribute to update.');
+        return;
+    }
+
+    const container = document.getElementById('fieldsContainer');
+    container.innerHTML = '';
+
+    checkboxes.forEach(cb => {
+        const attr = cb.value;
+        const existingVal = fetchedProductData ? fetchedProductData[attr] : undefined;
+
+        const group = document.createElement('div');
+        group.className = 'form-group';
+
+        if (attr === 'gtins') {
+            let formattedGtins;
+
+            if (Array.isArray(existingVal) && existingVal.length > 0) {
+                const sanitizedGtins = existingVal.map(item => ({
+                    declared_type: (item && item.declared_type) ? item.declared_type : "",
+                    value: (item && item.value) ? item.value : ""
+                }));
+                formattedGtins = JSON.stringify(sanitizedGtins, null, 2);
+            } else {
+                formattedGtins = JSON.stringify([{
+                    "declared_type": "",
+                    "value": ""
+                }], null, 2);
+            }
+
+            group.innerHTML = `
+                <label>${attr} (JSON Array):</label>
+                <textarea rows="5" data-attr="${attr}">${formattedGtins}</textarea>
+            `;
+        } else if (attr === 'custom_properties') {
+            const defaultProps = existingVal && typeof existingVal === 'object' ? JSON.stringify(existingVal, null, 2) : '{\n  "is_blocklisted": false,\n  "review_form_tag": ""\n}';
+            group.innerHTML = `
+                <label>${attr} (JSON Object):</label>
+                <textarea rows="4" data-attr="${attr}">${defaultProps}</textarea>
+            `;
+        } else if (attr === 'is_discontinued') {
+            const isTrue = existingVal === true;
+            group.innerHTML = `
+                <label>${attr}:</label>
+                <select data-attr="${attr}">
+                    <option value="false" ${!isTrue ? 'selected' : ''}>false</option>
+                    <option value="true" ${isTrue ? 'selected' : ''}>true</option>
+                </select>
+            `;
+        } else if (['price', 'compare_at_price', 'inventory_quantity'].includes(attr)) {
+            group.innerHTML = `
+                <label>${attr}:</label>
+                <input type="number" step="any" data-attr="${attr}" value="${existingVal !== undefined ? existingVal : ''}">
+            `;
+        } else {
+            group.innerHTML = `
+                <label>${attr}:</label>
+                <input type="text" data-attr="${attr}" value="${existingVal !== undefined ? existingVal : ''}">
+            `;
+        }
+
+        container.appendChild(group);
+    });
+
+    container.querySelectorAll('[data-attr]').forEach(el => {
+        el.addEventListener('input', updatePayloadFromInputs);
+        el.addEventListener('change', updatePayloadFromInputs);
+    });
+
+    document.getElementById('stepEdit').classList.remove('hidden');
+    updatePayloadFromInputs();
+}
+
+function updatePayloadFromInputs() {
+    const payloadProduct = {};
+    const inputs = document.querySelectorAll('#fieldsContainer [data-attr]');
+
+    inputs.forEach(input => {
+        const attr = input.getAttribute('data-attr');
+        const val = input.value.trim();
+
+        if (attr === 'gtins' || attr === 'custom_properties') {
+            try {
+                payloadProduct[attr] = JSON.parse(val);
+            } catch {
+                payloadProduct[attr] = val;
+            }
+        } else if (attr === 'is_discontinued') {
+            payloadProduct[attr] = val === 'true';
+        } else if (['price', 'compare_at_price', 'inventory_quantity'].includes(attr)) {
+            payloadProduct[attr] = val !== '' ? Number(val) : null;
+        } else {
+            payloadProduct[attr] = val;
+        }
+    });
+
+    const fullPayload = { product: payloadProduct };
+    document.getElementById('jsonPreview').value = JSON.stringify(fullPayload, null, 2);
+}
+
+function validateManualJson() {
+    const updateBtn = document.getElementById('updateBtn');
+    const statusEl = document.getElementById('updateStatus');
+    const text = document.getElementById('jsonPreview').value;
+
+    try {
+        JSON.parse(text);
+        updateBtn.disabled = false;
+        statusEl.className = 'status';
+        statusEl.innerText = '';
+    } catch (e) {
+        updateBtn.disabled = true;
+        statusEl.className = 'status error';
+        statusEl.innerText = 'Invalid JSON syntax';
+    }
+}
+
+async function submitProductUpdate() {
+    const storeId = document.getElementById('storeId').value.trim();
+    const uToken = document.getElementById('uToken').value.trim();
+    const productId = document.getElementById('productId').value.trim();
+    const updateBtn = document.getElementById('updateBtn');
+    const statusEl = document.getElementById('updateStatus');
+    const logArea = document.getElementById('responseLog');
+
+    const jsonText = document.getElementById('jsonPreview').value;
+
+    let payloadObj;
+    try {
+        payloadObj = JSON.parse(jsonText);
+    } catch {
+        alert('Invalid JSON in payload editor.');
+        return;
+    }
+
+    statusEl.className = 'status';
+    statusEl.innerText = 'Submitting update...';
+    logArea.className = 'response-area';
+    logArea.innerText = 'Sending PATCH request...';
+    updateBtn.disabled = true;
+
+    const endpoint = `https://api.yotpo.com/core/v3/stores/${storeId}/products/${productId}?access_token=${uToken}`;
+
+    try {
+        const response = await fetch(endpoint, {
+            method: 'PATCH',
+            headers: {
+                'Content-Type': 'application/json',
+                'Accept': 'application/json',
+                'X-Yotpo-token': uToken
+            },
+            body: JSON.stringify(payloadObj)
+        });
+
+        let responseData = null;
+        const responseText = await response.text();
+        if (responseText) {
+            try {
+                responseData = JSON.parse(responseText);
+            } catch {
+                responseData = responseText;
+            }
+        }
+
+        if (response.ok) {
+            statusEl.className = 'status';
+            statusEl.innerText = 'Product updated successfully!';
+            logArea.className = 'response-area';
+            logArea.innerText = 'HTTP Status: ' + response.status + 
+                (responseData ? '\n\nResponse:\n' + JSON.stringify(responseData, null, 2) : '\n\nSuccess (204 No Content - Product Updated)');
+        } else {
+            statusEl.className = 'status error';
+            statusEl.innerText = `Update Failed (${response.status})`;
+            logArea.className = 'response-area error-mode';
+            logArea.innerText = 'HTTP Status: ' + response.status + 
+                '\n\nError Details:\n' + (responseData ? JSON.stringify(responseData, null, 2) : 'No error body received.');
+        }
+    } catch (err) {
+        statusEl.className = 'status error';
+        statusEl.innerText = 'Execution error';
+        logArea.className = 'response-area error-mode';
+        logArea.innerText = 'Network Error:\n' + err.message;
+    } finally {
+        updateBtn.disabled = false;
+    }
+}</div>
+      </div>
+
+      <div class="instruction-step">
+        <h3>Step 3: Load the Extension in Google Chrome</h3>
+        <ol class="setup-list">
+          <li>Open <strong>Google Chrome</strong> (or any Chromium browser like Edge/Brave).</li>
+          <li>In the address bar, navigate to: <code>chrome://extensions/</code></li>
+          <li>In the top-right corner of the Extensions page, turn on <strong>Developer mode</strong>.</li>
+          <li>In the top-left corner, click the <strong>Load unpacked</strong> button.</li>
+          <li>Select the folder you created in Step 1 (containing <code>manifest.json</code>, <code>popup.html</code>, and <code>popup.js</code>).</li>
+          <li>The extension <strong>"Yotpo Product Retriever & Updater"</strong> will now appear in your extensions bar! Click its icon to launch the tool anytime.</li>
+        </ol>
+      </div>
+    </div>
+  </div>
+
   <script>
+    // Code Copy Helper
+    function copyCodeBlock(elementId, btn) {
+      const codeContainer = document.getElementById(elementId);
+      const tempTextArea = document.createElement('textarea');
+      
+      // Decode HTML entities (like &lt; to <) for clean copying
+      tempTextArea.innerHTML = codeContainer.innerHTML;
+      const textToCopy = tempTextArea.value;
+
+      navigator.clipboard.writeText(textToCopy).then(() => {
+        btn.innerText = "Copied!";
+        btn.classList.add("copied");
+
+        setTimeout(() => {
+          btn.innerText = "Copy Code";
+          btn.classList.remove("copied");
+        }, 2000);
+      }).catch(err => {
+        alert("Failed to copy code: " + err);
+      });
+    }
+
     // Tab Switcher
     function switchTab(evt, tabId) {
       document.querySelectorAll('.tab-content').forEach(el => el.classList.remove('active'));
@@ -1080,39 +1786,82 @@
       document.getElementById('orderStoreId').value = storeId;
       document.getElementById('orderUtoken').value = utoken;
 
-      const url = `https://api.yotpo.com/core/v3/stores/${storeId}/products?utoken=${utoken}`;
-      log('response-log-all', "Fetching all products catalog...");
+      fetchedProducts = [];
+      rawAllResponseString = "";
+      
+      let page = 1;
+      const perPage = 100;
+      let keepFetching = true;
+      const allRawResponses = [];
+
+      log('response-log-all', "Initializing product catalog retrieval...");
 
       try {
-        const response = await fetch(url, {
-          method: 'GET',
-          headers: { 'Accept': 'application/json' }
-        });
+        while (keepFetching) {
+          log('response-log-all', `Fetching page ${page}... (Loaded ${fetchedProducts.length} products so far)`);
 
-        const data = await response.json();
-
-        if (response.ok) {
-          fetchedProducts = data.products || data.yotpo_products || (Array.isArray(data) ? data : []);
-          rawAllResponseString = JSON.stringify(data, null, 2);
-
-          log('response-log-all', "All products successfully retrieved!\n" + rawAllResponseString);
+          const url = `https://api.yotpo.com/core/v3/stores/${storeId}/products?utoken=${utoken}&page=${page}&per_page=${perPage}`;
           
+          const response = await fetch(url, {
+            method: 'GET',
+            headers: { 'Accept': 'application/json' }
+          });
+
+          const data = await response.json();
+
+          if (!response.ok) {
+            const errorMsg = data.message || data.error || response.statusText;
+            throw new Error(`API Error on page ${page} (${response.status}): ${errorMsg}`);
+          }
+
+          const productsChunk = data.products || data.yotpo_products || (Array.isArray(data) ? data : []);
+          allRawResponses.push(data);
+
+          if (!productsChunk || productsChunk.length === 0) {
+            log('response-log-all', `Reached end of catalog (Page ${page} returned 0 products). Stopping...`);
+            keepFetching = false;
+            break;
+          }
+
+          fetchedProducts.push(...productsChunk);
+
+          if (productsChunk.length < perPage) {
+            keepFetching = false;
+            break;
+          }
+
+          const pagination = data.pagination || (data.response && data.response.pagination);
+          if (pagination && pagination.total && fetchedProducts.length >= pagination.total) {
+            keepFetching = false;
+            break;
+          }
+
+          page++;
+          await new Promise(resolve => setTimeout(resolve, 150));
+        }
+
+        rawAllResponseString = JSON.stringify(allRawResponses.length === 1 ? allRawResponses[0] : allRawResponses, null, 2);
+
+        log('response-log-all', `Success! Fully retrieved ${fetchedProducts.length} product(s) across ${page} page(s).\n\n` + rawAllResponseString);
+
+        searchInput.disabled = false;
+        rawSearchInput.disabled = false;
+        exportBtn.disabled = fetchedProducts.length === 0;
+        renderProductTable(fetchedProducts);
+        resetAllSearch();
+
+      } catch (err) {
+        log('response-log-all', `Failed during retrieval at page ${page}.\nError Details: ${err.message}\n\nProducts saved prior to failure: ${fetchedProducts.length}`);
+        
+        if (fetchedProducts.length > 0) {
+          exportBtn.disabled = false;
           searchInput.disabled = false;
-          rawSearchInput.disabled = false;
-          exportBtn.disabled = fetchedProducts.length === 0;
           renderProductTable(fetchedProducts);
-          resetAllSearch();
         } else {
-          log('response-log-all', `Error fetching products (${response.status}):`, data);
           searchInput.disabled = true;
           rawSearchInput.disabled = true;
           exportBtn.disabled = true;
         }
-      } catch (err) {
-        log('response-log-all', `Network Error: ${err.message}`);
-        searchInput.disabled = true;
-        rawSearchInput.disabled = true;
-        exportBtn.disabled = true;
       }
     }
 
@@ -1807,7 +2556,6 @@
 
       if (rows.length === 0) return 0;
 
-      // Header Row
       const headerTr = document.createElement('tr');
       rows[0].forEach(cellText => {
         const th = document.createElement('th');
@@ -1816,7 +2564,6 @@
       });
       fixerTableHeader.appendChild(headerTr);
 
-      // Body Rows
       for (let i = 1; i < rows.length; i++) {
         if (rows[i].length === 1 && rows[i][0].trim() === "") continue;
 
