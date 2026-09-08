@@ -98,13 +98,13 @@
 
     .grid-container {
       display: grid;
-      grid-template-columns: 1fr 1fr;
+      grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
       gap: 20px;
     }
 
     @media (max-width: 900px) {
       .grid-container {
-        grid-template-columns: 1fr;
+        grid-template-columns: minmax(0, 1fr);
       }
     }
 
@@ -116,6 +116,7 @@
       padding: 24px;
       box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.37);
       margin-bottom: 20px;
+      min-width: 0;
     }
 
     h2 {
@@ -348,20 +349,43 @@
       outline: 2px solid #dd6b20;
     }
 
-    /* Table Styling */
+    /* Table & Scrollbar Styling */
     .table-container {
       margin-top: 15px;
-      max-height: 450px;
-      overflow: auto;
+      max-height: 320px;
+      max-width: 100%;
+      overflow-x: auto;
+      overflow-y: auto;
       border: 1px solid var(--card-border);
       border-radius: 8px;
       background: var(--card-bg);
+      display: block;
+    }
+
+    .table-container::-webkit-scrollbar {
+      width: 8px;
+      height: 8px;
+    }
+
+    .table-container::-webkit-scrollbar-track {
+      background: #09111E;
+    }
+
+    .table-container::-webkit-scrollbar-thumb {
+      background: var(--card-border);
+      border-radius: 4px;
+    }
+
+    .table-container::-webkit-scrollbar-thumb:hover {
+      background: var(--accent-blue);
     }
 
     table {
       width: 100%;
+      min-width: 1000px;
       border-collapse: collapse;
       font-size: 0.85rem;
+      table-layout: auto;
     }
 
     th, td {
@@ -369,6 +393,9 @@
       text-align: left;
       border: 1px solid var(--card-border);
       white-space: nowrap;
+      max-width: 250px;
+      overflow: hidden;
+      text-overflow: ellipsis;
     }
 
     th {
@@ -376,7 +403,7 @@
       color: var(--text-main);
       position: sticky;
       top: 0;
-      z-index: 1;
+      z-index: 2;
     }
 
     tr:nth-child(even) { 
@@ -516,7 +543,7 @@
       flex-grow: 1;
     }
 
-    /* Styles for Tab 7: Product Update Instructions */
+    /* Styles for Extension Setup Tabs */
     .instruction-step {
       background: rgba(18, 33, 55, 0.6);
       border-left: 4px solid var(--accent-cyan);
@@ -598,12 +625,13 @@
 
   <div class="tab-nav">
     <button class="tab-btn active" onclick="switchTab(event, 'tab-utoken')">uToken Retriever</button>
-    <button class="tab-btn" onclick="switchTab(event, 'tab-products')">Product Manager</button>
+    <button class="tab-btn" onclick="switchTab(event, 'tab-products')">Product Export</button>
     <button class="tab-btn" onclick="switchTab(event, 'tab-orders')">Create Order</button>
     <button class="tab-btn" onclick="switchTab(event, 'tab-questions')">Custom Questions Separator</button>
     <button class="tab-btn" onclick="switchTab(event, 'tab-fixer')">CSV Character Fixer</button>
     <button class="tab-btn" onclick="switchTab(event, 'tab-checker')">Review Type Checker</button>
     <button class="tab-btn" onclick="switchTab(event, 'tab-update')">Product Update</button>
+    <button class="tab-btn" onclick="switchTab(event, 'tab-export-orders')">Export Orders</button>
   </div>
 
   <!-- TAB 1: UTOKEN RETRIEVER -->
@@ -670,6 +698,26 @@
         </div>
 
         <div class="form-group" style="margin-top: 15px;">
+          <label for="single-search-input">Table Filter (Name or Product ID):</label>
+          <input type="text" id="single-search-input" placeholder="Filter product table..." oninput="filterSingleProductTable()" disabled>
+        </div>
+
+        <!-- Preview Table Single -->
+        <h3>Product Table Preview</h3>
+        <div class="table-container">
+          <table>
+            <thead>
+              <tr id="single-table-header"></tr>
+            </thead>
+            <tbody id="single-table-body">
+              <tr>
+                <td colspan="17" style="text-align: center; color: var(--text-muted);">No product loaded yet.</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+
+        <div class="form-group" style="margin-top: 15px;">
           <label for="raw-response-single-search">Search Inside Raw API Response (Press Enter for Next):</label>
           <div class="search-nav-container">
             <input type="text" id="raw-response-single-search" placeholder="Type and press Enter to step through..." onkeydown="handleRawSingleKeyDown(event)" disabled>
@@ -705,18 +753,16 @@
           <input type="text" id="search-input" placeholder="Filter product table..." oninput="filterProducts()" disabled>
         </div>
 
-        <div class="table-container" style="max-height: 180px;">
+        <!-- Preview Table All -->
+        <h3>Products Table Preview</h3>
+        <div class="table-container">
           <table>
             <thead>
-              <tr>
-                <th>Yotpo ID</th>
-                <th>Name</th>
-                <th>Price</th>
-              </tr>
+              <tr id="all-table-header"></tr>
             </thead>
             <tbody id="product-table-body">
               <tr>
-                <td colspan="3" style="text-align: center; color: var(--text-muted);">No products loaded. Click "Retrieve All Products" first.</td>
+                <td colspan="17" style="text-align: center; color: var(--text-muted);">No products loaded. Click "Retrieve All Products" first.</td>
               </tr>
             </tbody>
           </table>
@@ -1246,7 +1292,7 @@
     &lt;!-- Step 3: Edit Selected Attributes &amp; Preview Payload --&gt;
     &lt;div id="stepEdit" class="card hidden"&gt;
         &lt;h2&gt;3. Edit Values &amp; Preview Update Payload&lt;/h2&gt;
-        
+        &nbsp;
         &lt;div id="fieldsContainer" class="grid" style="margin-bottom: 12px;"&gt;&lt;/div&gt;
 
         &lt;label for="jsonPreview"&gt;Generated Payload (Editable JSON):&lt;/label&gt;
@@ -1534,13 +1580,819 @@ async function submitProductUpdate() {
     </div>
   </div>
 
+  <!-- TAB 8: EXPORT ORDERS EXTENSION INSTRUCTIONS -->
+  <div id="tab-export-orders" class="tab-content">
+    <div class="card" style="max-width: 900px; margin: 0 auto;">
+      <h2>Yotpo Order Exporter Extension Setup</h2>
+      <p style="color: var(--text-muted); font-size: 0.9rem; line-height: 1.5;">
+        Follow the instructions below to create and install your custom Chrome extension for retrieving Yotpo orders and exporting them to CSV.
+      </p>
+
+      <div class="instruction-step">
+        <h3>Step 1: Create local folder</h3>
+        <p style="font-size: 0.88rem;">Create a new folder on your computer (e.g., <code>yotpo-order-exporter-extension</code>).</p>
+      </div>
+
+      <div class="instruction-step">
+        <h3>Step 2: Create required extension files</h3>
+        <p style="font-size: 0.88rem;">Inside that folder, create the following 3 files using Notepad or a text editor:</p>
+
+        <!-- FILE 1: manifest.json -->
+        <div class="code-title">
+          <span>1. manifest.json</span>
+          <button class="code-copy-btn" onclick="copyCodeBlock('code-exporter-manifest', this)">Copy Code</button>
+        </div>
+        <div id="code-exporter-manifest" class="code-block">{
+  "manifest_version": 3,
+  "name": "Yotpo Order Exporter",
+  "version": "1.0",
+  "description": "Retrieve Yotpo orders and export them as CSV.",
+  "permissions": [
+    "storage"
+  ],
+  "host_permissions": [
+    "https://api.yotpo.com/*"
+  ],
+  "action": {
+    "default_popup": "popup.html"
+  }
+}</div>
+
+        <!-- FILE 2: popup.html -->
+        <div class="code-title">
+          <span>2. popup.html</span>
+          <button class="code-copy-btn" onclick="copyCodeBlock('code-exporter-html', this)">Copy Code</button>
+        </div>
+        <div id="code-exporter-html" class="code-block">&lt;!DOCTYPE html&gt;
+&lt;html lang="en"&gt;
+&lt;head&gt;
+  &lt;meta charset="UTF-8"&gt;
+  &lt;title&gt;Yotpo Order Exporter&lt;/title&gt;
+  &lt;style&gt;
+    :root {
+      --bg-dark: #0D182A;
+      --card-bg: rgba(21, 35, 56, 0.7);
+      --card-border: #1E314B;
+      --accent-cyan: #00E6BB;
+      --accent-blue: #0094FF;
+      --text-main: #FFFFFF;
+      --text-muted: #8E9BAE;
+      --table-header-bg: #122137;
+    }
+
+    * {
+      box-sizing: border-box;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    }
+
+    body {
+      margin: 0;
+      padding: 20px;
+      background-color: var(--bg-dark);
+      color: var(--text-main);
+      background-image: 
+        radial-gradient(circle at 90% 10%, rgba(0, 230, 187, 0.08) 0%, transparent 40%),
+        radial-gradient(circle at 10% 90%, rgba(0, 148, 255, 0.08) 0%, transparent 40%);
+      width: 780px;
+      min-height: 580px;
+    }
+
+    .app-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-end;
+      margin-bottom: 20px;
+      border-bottom: 1px solid var(--card-border);
+      padding-bottom: 12px;
+    }
+
+    .app-header h1 {
+      font-size: 22px;
+      margin: 0 0 4px 0;
+      font-weight: 700;
+      letter-spacing: 0.5px;
+      text-transform: uppercase;
+    }
+
+    .subtitle {
+      color: var(--accent-cyan);
+      font-size: 11px;
+      font-weight: 600;
+      letter-spacing: 1.5px;
+      text-transform: uppercase;
+      margin: 0;
+    }
+
+    .config-panel {
+      background: var(--card-bg);
+      backdrop-filter: blur(12px);
+      border: 1px solid var(--card-border);
+      border-radius: 10px;
+      padding: 16px;
+      margin-bottom: 16px;
+      box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.37);
+    }
+
+    .form-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 12px;
+    }
+
+    .form-group {
+      display: flex;
+      flex-direction: column;
+    }
+
+    label {
+      font-weight: 600;
+      font-size: 0.78rem;
+      margin-bottom: 6px;
+      color: var(--text-muted);
+    }
+
+    input {
+      width: 100%;
+      padding: 8px 10px;
+      border: 1px solid var(--card-border);
+      border-radius: 6px;
+      font-size: 0.85rem;
+      background-color: #122137;
+      color: var(--text-main);
+      transition: all 0.2s ease;
+    }
+
+    input:focus {
+      outline: none;
+      border-color: var(--accent-cyan);
+      box-shadow: 0 0 0 2px rgba(0, 230, 187, 0.2);
+    }
+
+    .layout-container {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+      gap: 16px;
+    }
+
+    .panel {
+      background: var(--card-bg);
+      backdrop-filter: blur(12px);
+      border: 1px solid var(--card-border);
+      border-radius: 10px;
+      padding: 16px;
+      box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.37);
+      min-width: 0;
+    }
+
+    .panel-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 12px;
+    }
+
+    .panel-header h3 {
+      margin: 0;
+      font-size: 0.95rem;
+      color: var(--accent-cyan);
+    }
+
+    .btn-group {
+      display: flex;
+      gap: 8px;
+    }
+
+    button {
+      padding: 8px 12px;
+      font-size: 12px;
+      font-weight: 700;
+      letter-spacing: 0.5px;
+      background-color: var(--accent-cyan);
+      color: var(--bg-dark);
+      border: none;
+      border-radius: 6px;
+      cursor: pointer;
+      box-shadow: 0 0 10px rgba(0, 230, 187, 0.2);
+      transition: all 0.2s ease;
+    }
+
+    button:hover:not(:disabled) {
+      box-shadow: 0 0 15px rgba(0, 230, 187, 0.5);
+      transform: translateY(-1px);
+    }
+
+    button.export-btn {
+      background-color: var(--accent-blue);
+      color: #ffffff;
+      box-shadow: 0 0 10px rgba(0, 148, 255, 0.2);
+    }
+
+    button.export-btn:hover:not(:disabled) {
+      box-shadow: 0 0 15px rgba(0, 148, 255, 0.5);
+    }
+
+    .btn-clear {
+      background-color: #4A5568;
+      color: #FFFFFF;
+      box-shadow: none;
+    }
+
+    .btn-clear:hover {
+      background-color: #718096;
+    }
+
+    .table-container {
+      max-height: 220px;
+      max-width: 100%;
+      overflow-x: auto;
+      overflow-y: auto;
+      border: 1px solid var(--card-border);
+      border-radius: 6px;
+      background: var(--card-bg);
+      margin-bottom: 12px;
+    }
+
+    .table-container::-webkit-scrollbar {
+      width: 6px;
+      height: 6px;
+    }
+
+    .table-container::-webkit-scrollbar-track {
+      background: #09111E;
+    }
+
+    .table-container::-webkit-scrollbar-thumb {
+      background: var(--card-border);
+      border-radius: 4px;
+    }
+
+    .table-container::-webkit-scrollbar-thumb:hover {
+      background: var(--accent-blue);
+    }
+
+    table {
+      width: 100%;
+      min-width: 600px;
+      border-collapse: collapse;
+      font-size: 0.78rem;
+    }
+
+    th, td {
+      text-align: left;
+      padding: 8px 10px;
+      border: 1px solid var(--card-border);
+      white-space: nowrap;
+      max-width: 200px;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    th {
+      background-color: var(--table-header-bg);
+      color: var(--text-main);
+      position: sticky;
+      top: 0;
+      z-index: 2;
+    }
+
+    tr:nth-child(even) { 
+      background-color: rgba(255, 255, 255, 0.02); 
+    }
+
+    tr:hover {
+      background-color: rgba(0, 148, 255, 0.05);
+    }
+
+    .error-msg {
+      color: #ff6b6b;
+      font-size: 0.8rem;
+      margin-top: 8px;
+      font-weight: 600;
+    }
+
+    details {
+      font-size: 0.78rem;
+      background: #09111E;
+      border: 1px solid var(--card-border);
+      border-radius: 6px;
+      padding: 8px;
+    }
+
+    summary {
+      font-weight: 600;
+      cursor: pointer;
+      color: var(--accent-cyan);
+    }
+
+    pre.json-preview {
+      background: transparent;
+      color: #00ff66;
+      padding: 6px 0 0 0;
+      border-radius: 4px;
+      max-height: 180px;
+      overflow-x: auto;
+      overflow-y: auto;
+      font-family: monospace;
+      font-size: 0.75rem;
+      margin-top: 6px;
+      margin-bottom: 0;
+      white-space: pre-wrap;
+      word-break: break-all;
+    }
+  &lt;/style&gt;
+&lt;/head&gt;
+&lt;body&gt;
+
+  &lt;div class="app-header"&gt;
+    &lt;div&gt;
+      &lt;p class="subtitle"&gt;RJRN TOOL SUITE&lt;/p&gt;
+      &lt;h1&gt;Yotpo Order Exporter&lt;/h1&gt;
+    &lt;/div&gt;
+    &lt;button id="btnClearAll" class="btn-clear" type="button"&gt;Clear All Data&lt;/button&gt;
+  &lt;/div&gt;
+
+  &lt;div class="config-panel"&gt;
+    &lt;div class="form-grid"&gt;
+      &lt;div class="form-group"&gt;
+        &lt;label for="appKey"&gt;App Key (Store ID)&lt;/label&gt;
+        &lt;input type="text" id="appKey" placeholder="Enter Store ID"&gt;
+      &lt;/div&gt;
+      &lt;div class="form-group"&gt;
+        &lt;label for="uToken"&gt;User Token (utoken)&lt;/label&gt;
+        &lt;input type="password" id="uToken" placeholder="Enter utoken"&gt;
+      &lt;/div&gt;
+      &lt;div class="form-group"&gt;
+        &lt;label for="singleOrderId"&gt;Yotpo Order ID&lt;/label&gt;
+        &lt;input type="text" id="singleOrderId" placeholder="Enter Order ID"&gt;
+      &lt;/div&gt;
+    &lt;/div&gt;
+    &lt;div id="errorMessage" class="error-msg"&gt;&lt;/div&gt;
+  &lt;/div&gt;
+
+  &lt;div class="layout-container"&gt;
+    &lt;!-- LEFT PANEL: Retrieve All Orders --&gt;
+    &lt;div class="panel"&gt;
+      &lt;div class="panel-header"&gt;
+        &lt;h3&gt;All Orders&lt;/h3&gt;
+        &lt;div class="btn-group"&gt;
+          &lt;button id="btnFetchAll" type="button"&gt;Fetch All&lt;/button&gt;
+          &lt;button id="btnExportAll" class="export-btn" type="button"&gt;Export CSV&lt;/button&gt;
+        &lt;/div&gt;
+      &lt;/div&gt;
+      &lt;div class="form-group" style="margin-bottom: 8px;"&gt;
+        &lt;input type="text" id="searchAllOrders" placeholder="Filter orders..." disabled&gt;
+      &lt;/div&gt;
+      &lt;div class="table-container" id="allOrdersContainer"&gt;
+        &lt;span style="font-size: 0.75rem; color: var(--text-muted);"&gt;Click "Fetch All" to load orders.&lt;/span&gt;
+      &lt;/div&gt;
+      &lt;details&gt;
+        &lt;summary&gt;Raw JSON Payload&lt;/summary&gt;
+        &lt;pre class="json-preview" id="allOrdersJson"&gt;// Raw payload will appear here...&lt;/pre&gt;
+      &lt;/details&gt;
+    &lt;/div&gt;
+
+    &lt;!-- RIGHT PANEL: Retrieve Single Order --&gt;
+    &lt;div class="panel"&gt;
+      &lt;div class="panel-header"&gt;
+        &lt;h3&gt;Single Order&lt;/h3&gt;
+        &lt;div class="btn-group"&gt;
+          &lt;button id="btnFetchSingle" type="button"&gt;Fetch Order&lt;/button&gt;
+          &lt;button id="btnExportSingle" class="export-btn" type="button"&gt;Export CSV&lt;/button&gt;
+        &lt;/div&gt;
+      &lt;/div&gt;
+      &lt;div class="form-group" style="margin-bottom: 8px;"&gt;
+        &lt;input type="text" id="searchSingleOrder" placeholder="Filter details..." disabled&gt;
+      &lt;/div&gt;
+      &lt;div class="table-container" id="singleOrderContainer"&gt;
+        &lt;span style="font-size: 0.75rem; color: var(--text-muted);"&gt;Enter Order ID and fetch.&lt;/span&gt;
+      &lt;/div&gt;
+      &lt;details&gt;
+        &lt;summary&gt;Raw JSON Payload&lt;/summary&gt;
+        &lt;pre class="json-preview" id="singleOrderJson"&gt;// Raw payload will appear here...&lt;/pre&gt;
+      &lt;/details&gt;
+    &lt;/div&gt;
+  &lt;/div&gt;
+
+  &lt;script src="popup.js"&gt;&lt;/script&gt;
+&lt;/body&gt;
+&lt;/html&gt;</div>
+
+        <!-- FILE 3: popup.js -->
+        <div class="code-title">
+          <span>3. popup.js</span>
+          <button class="code-copy-btn" onclick="copyCodeBlock('code-exporter-js', this)">Copy Code</button>
+        </div>
+        <div id="code-exporter-js" class="code-block">let allOrdersData = [];
+let singleOrderData = null;
+
+// Cache customer emails to avoid redundant API requests
+const customerEmailCache = {};
+
+document.addEventListener('DOMContentLoaded', () => {
+  // Restore saved credentials safely
+  if (chrome.storage && chrome.storage.local) {
+    chrome.storage.local.get(['appKey', 'uToken', 'singleOrderId'], (result) => {
+      if (result.appKey) document.getElementById('appKey').value = result.appKey;
+      if (result.uToken) document.getElementById('uToken').value = result.uToken;
+      if (result.singleOrderId) document.getElementById('singleOrderId').value = result.singleOrderId;
+    });
+
+    ['appKey', 'uToken', 'singleOrderId'].forEach(id => {
+      const el = document.getElementById(id);
+      if (el) {
+        el.addEventListener('input', (e) => {
+          chrome.storage.local.set({ [id]: e.target.value.trim() });
+        });
+      }
+    });
+  }
+
+  // Attach button listeners
+  const btnFetchAll = document.getElementById('btnFetchAll');
+  const btnFetchSingle = document.getElementById('btnFetchSingle');
+  const btnExportAll = document.getElementById('btnExportAll');
+  const btnExportSingle = document.getElementById('btnExportSingle');
+  const btnClearAll = document.getElementById('btnClearAll');
+
+  if (btnFetchAll) btnFetchAll.addEventListener('click', fetchAllOrders);
+  if (btnFetchSingle) btnFetchSingle.addEventListener('click', fetchSingleOrder);
+  if (btnExportAll) btnExportAll.addEventListener('click', exportAllOrdersCSV);
+  if (btnExportSingle) btnExportSingle.addEventListener('click', exportSingleOrderCSV);
+  if (btnClearAll) btnClearAll.addEventListener('click', clearAll);
+
+  // Search input listeners
+  document.getElementById('searchAllOrders').addEventListener('input', (e) => filterTable(allOrdersData, 'allOrdersContainer', e.target.value));
+  document.getElementById('searchSingleOrder').addEventListener('input', (e) => filterTable(singleOrderData ? [singleOrderData] : [], 'singleOrderContainer', e.target.value));
+});
+
+function clearError() {
+  document.getElementById('errorMessage').innerText = '';
+}
+
+function showError(msg) {
+  document.getElementById('errorMessage').innerText = msg;
+}
+
+function clearAll() {
+  allOrdersData = [];
+  singleOrderData = null;
+
+  document.getElementById('appKey').value = '';
+  document.getElementById('uToken').value = '';
+  document.getElementById('singleOrderId').value = '';
+  document.getElementById('searchAllOrders').value = '';
+  document.getElementById('searchSingleOrder').value = '';
+
+  document.getElementById('searchAllOrders').disabled = true;
+  document.getElementById('searchSingleOrder').disabled = true;
+
+  document.getElementById('allOrdersContainer').innerHTML = '<span style="font-size:0.75rem; color: var(--text-muted);">Click "Fetch All" to load orders.</span>';
+  document.getElementById('singleOrderContainer').innerHTML = '<span style="font-size:0.75rem; color: var(--text-muted);">Enter Order ID and fetch.</span>';
+
+  document.getElementById('allOrdersJson').innerText = '// Raw payload will appear here...';
+  document.getElementById('singleOrderJson').innerText = '// Raw payload will appear here...';
+
+  clearError();
+
+  if (chrome.storage && chrome.storage.local) {
+    chrome.storage.local.remove(['appKey', 'uToken', 'singleOrderId']);
+  }
+}
+
+function getHeaders(utoken) {
+  return {
+    'Accept': 'application/json',
+    'Content-Type': 'application/json',
+    'x-yotpo-token': utoken
+  };
+}
+
+async function resolveCustomerEmail(storeId, utoken, order) {
+  let directEmail = order.email || order.customer?.email || order.shopper_email || order.user?.email || order.customer_email;
+  if (directEmail) return directEmail;
+
+  const customerId = order.customer_id || order.customer?.id || order.user_id;
+  if (!customerId) return '';
+
+  if (customerEmailCache[customerId]) {
+    return customerEmailCache[customerId];
+  }
+
+  try {
+    const custUrl = `https://api.yotpo.com/core/v3/stores/${storeId}/customers/${customerId}`;
+    const response = await fetch(custUrl, { method: 'GET', headers: getHeaders(utoken) });
+    if (response.ok) {
+      const data = await response.json();
+      const email = data.customer?.email || data.email || '';
+      customerEmailCache[customerId] = email;
+      return email;
+    }
+  } catch (e) {
+    // Fail silently if customer fetch fails
+  }
+  return '';
+}
+
+function flattenObject(obj, prefix = '', result = {}) {
+  for (const key in obj) {
+    if (!Object.prototype.hasOwnProperty.call(obj, key)) continue;
+
+    const propName = prefix ? `${prefix}_${key}` : key;
+    const value = obj[key];
+
+    if (value !== null && typeof value === 'object' && !Array.isArray(value)) {
+      flattenObject(value, propName, result);
+    } else if (!Array.isArray(value)) {
+      result[propName] = (value === null || value === undefined) ? '' : value;
+    }
+  }
+  return result;
+}
+
+function processOrdersForCSV(ordersArray) {
+  const flattenedRows = [];
+
+  ordersArray.forEach(order => {
+    const items = order.line_items || order.items || order.order_items || [];
+    const fulfillments = order.fulfillments || order.fulfillment_list || [];
+
+    const orderBase = { ...order };
+
+    // Set 'External Order ID' column explicitly using external_id
+    orderBase['External Order ID'] = order.external_id || order.order_id || order.id || '';
+    orderBase.customer_email = order.resolved_email || order.email || order.customer?.email || '';
+
+    // Cleanup raw object properties that get broken down into nested line items
+    delete orderBase.line_items;
+    delete orderBase.items;
+    delete orderBase.order_items;
+    delete orderBase.fulfillments;
+    delete orderBase.fulfillment_list;
+    delete orderBase.external_id;
+
+    const flatOrder = flattenObject(orderBase);
+
+    if (Array.isArray(fulfillments) && fulfillments.length > 0) {
+      const flatFulfillment = flattenObject(fulfillments[0], 'fulfillment');
+      Object.assign(flatOrder, flatFulfillment);
+    }
+
+    if (Array.isArray(items) && items.length > 0) {
+      items.forEach(item => {
+        const flatItem = flattenObject(item, 'item');
+        flattenedRows.push({ ...flatOrder, ...flatItem });
+      });
+    } else {
+      flattenedRows.push(flatOrder);
+    }
+  });
+
+  return flattenedRows;
+}
+
+function renderOrdersTable(rawOrdersArray, container) {
+  if (!rawOrdersArray || rawOrdersArray.length === 0) {
+    container.innerHTML = '<span style="font-size: 0.75rem; color: var(--text-muted);">No orders found.</span>';
+    return;
+  }
+
+  const flattenedRows = processOrdersForCSV(rawOrdersArray);
+
+  if (flattenedRows.length === 0) {
+    container.innerHTML = '<span style="font-size: 0.75rem; color: var(--text-muted);">No rows available.</span>';
+    return;
+  }
+
+  // Derive column headers dynamically to mirror CSV output structure
+  const headersSet = new Set();
+  flattenedRows.forEach(row => {
+    Object.keys(row).forEach(key => headersSet.add(key));
+  });
+  const headers = Array.from(headersSet);
+
+  let html = `<table>
+    <thead>
+      <tr>`;
+  
+  headers.forEach(h => {
+    html += `<th>${h}</th>`;
+  });
+
+  html += `</tr>
+    </thead>
+    <tbody>`;
+
+  flattenedRows.forEach(row => {
+    html += `<tr>`;
+    headers.forEach(header => {
+      const val = row[header] !== undefined && row[header] !== null ? String(row[header]) : '';
+      html += `<td title="${val}">${val}</td>`;
+    });
+    html += `</tr>`;
+  });
+
+  html += `</tbody></table>`;
+  container.innerHTML = html;
+}
+
+function filterTable(sourceArray, containerId, query) {
+  const container = document.getElementById(containerId);
+  const q = query.toLowerCase().trim();
+
+  if (!q) {
+    renderOrdersTable(sourceArray, container);
+    return;
+  }
+
+  const filtered = sourceArray.filter(o => {
+    const jsonStr = JSON.stringify(o).toLowerCase();
+    return jsonStr.includes(q);
+  });
+
+  renderOrdersTable(filtered, container);
+}
+
+async function fetchAllOrders() {
+  clearError();
+  const storeId = document.getElementById('appKey').value.trim();
+  const utoken = document.getElementById('uToken').value.trim();
+
+  if (!storeId || !utoken) {
+    showError('Please enter both App Key and User Token.');
+    return;
+  }
+
+  const container = document.getElementById('allOrdersContainer');
+  const jsonPreview = document.getElementById('allOrdersJson');
+  const searchInput = document.getElementById('searchAllOrders');
+
+  container.innerHTML = '<span style="font-size:0.75rem; color: var(--accent-cyan);">Loading orders & customer emails...</span>';
+  jsonPreview.innerText = '// Loading raw payload...';
+
+  const url = `https://api.yotpo.com/core/v3/stores/${storeId}/orders`;
+
+  try {
+    const response = await fetch(url, {
+      method: 'GET',
+      headers: getHeaders(utoken)
+    });
+
+    if (!response.ok) throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+
+    const data = await response.json();
+    jsonPreview.innerText = JSON.stringify(data, null, 2);
+
+    let orders = data.orders || data.result || (Array.isArray(data) ? data : [data]);
+
+    for (let o of orders) {
+      o.resolved_email = await resolveCustomerEmail(storeId, utoken, o);
+    }
+
+    allOrdersData = orders;
+    searchInput.disabled = false;
+    searchInput.value = '';
+    renderOrdersTable(allOrdersData, container);
+  } catch (err) {
+    container.innerHTML = `<span style="color:#ff6b6b; font-size: 0.75rem;">Failed: ${err.message}</span>`;
+    jsonPreview.innerText = `// Error: ${err.message}`;
+  }
+}
+
+async function fetchSingleOrder() {
+  clearError();
+  const storeId = document.getElementById('appKey').value.trim();
+  const utoken = document.getElementById('uToken').value.trim();
+  const orderId = document.getElementById('singleOrderId').value.trim();
+
+  if (!storeId || !utoken || !orderId) {
+    showError('Please enter App Key, User Token, and Order ID.');
+    return;
+  }
+
+  const container = document.getElementById('singleOrderContainer');
+  const jsonPreview = document.getElementById('singleOrderJson');
+  const searchInput = document.getElementById('searchSingleOrder');
+
+  container.innerHTML = '<span style="font-size:0.75rem; color: var(--accent-cyan);">Loading order details...</span>';
+  jsonPreview.innerText = '// Loading raw payload...';
+
+  let url = `https://api.yotpo.com/core/v3/stores/${storeId}/orders/${orderId}`;
+
+  try {
+    let response = await fetch(url, {
+      method: 'GET',
+      headers: getHeaders(utoken)
+    });
+
+    if (response.status === 404) {
+      url = `https://api.yotpo.com/core/v3/stores/${storeId}/orders?external_id=${orderId}`;
+      response = await fetch(url, {
+        method: 'GET',
+        headers: getHeaders(utoken)
+      });
+    }
+
+    if (!response.ok) throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+
+    const data = await response.json();
+    let rawOrder = data.order || data.orders?.[0] || data.result || data;
+
+    rawOrder.resolved_email = await resolveCustomerEmail(storeId, utoken, rawOrder);
+
+    try {
+      const yotpoId = rawOrder.id || rawOrder.yotpo_order_id;
+      if (yotpoId) {
+        const fulUrl = `https://api.yotpo.com/core/v3/stores/${storeId}/orders/${yotpoId}/fulfillments`;
+        const fulRes = await fetch(fulUrl, { method: 'GET', headers: getHeaders(utoken) });
+        if (fulRes.ok) {
+          const fulData = await fulRes.json();
+          rawOrder.fulfillments = fulData.fulfillments || fulData.result || fulData;
+        }
+      }
+    } catch (e) {}
+
+    jsonPreview.innerText = JSON.stringify(data, null, 2);
+    singleOrderData = rawOrder;
+    searchInput.disabled = false;
+    searchInput.value = '';
+    renderOrdersTable([singleOrderData], container);
+  } catch (err) {
+    container.innerHTML = `<span style="color:#ff6b6b; font-size: 0.75rem;">Failed: ${err.message}</span>`;
+    jsonPreview.innerText = `// Error: ${err.message}`;
+  }
+}
+
+function downloadCSV(rawOrdersData, filename) {
+  if (!rawOrdersData || rawOrdersData.length === 0) {
+    alert('No data available to export.');
+    return;
+  }
+
+  const flattenedData = processOrdersForCSV(rawOrdersData);
+
+  const headersSet = new Set();
+  flattenedData.forEach(row => {
+    Object.keys(row).forEach(key => headersSet.add(key));
+  });
+  const headers = Array.from(headersSet);
+
+  const csvRows = [headers.join(',')];
+
+  for (const row of flattenedData) {
+    const values = headers.map(header => {
+      let val = row[header];
+      if (val === null || val === undefined) val = '';
+      val = String(val).replace(/"/g, '""');
+      return `"${val}"`;
+    });
+    csvRows.push(values.join(','));
+  }
+
+  const csvContent = csvRows.join('\n');
+  const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+  const url = URL.createObjectURL(blob);
+
+  const link = document.createElement('a');
+  link.setAttribute('href', url);
+  link.setAttribute('download', filename);
+  document.body.appendChild(link);
+  link.click();
+  document.body.removeChild(link);
+}
+
+function exportAllOrdersCSV() {
+  downloadCSV(allOrdersData, 'yotpo_all_orders.csv');
+}
+
+function exportSingleOrderCSV() {
+  if (singleOrderData) {
+    downloadCSV([singleOrderData], 'yotpo_single_order.csv');
+  } else {
+    alert('No order data loaded to export.');
+  }
+}</div>
+      </div>
+
+      <div class="instruction-step">
+        <h3>Step 3: Load the Extension in Google Chrome</h3>
+        <ol class="setup-list">
+          <li>Open <strong>Google Chrome</strong> (or any Chromium browser like Edge/Brave).</li>
+          <li>In the address bar, navigate to: <code>chrome://extensions/</code></li>
+          <li>In the top-right corner of the Extensions page, turn on <strong>Developer mode</strong>.</li>
+          <li>In the top-left corner, click the <strong>Load unpacked</strong> button.</li>
+          <li>Select the folder you created in Step 1 (containing <code>manifest.json</code>, <code>popup.html</code>, and <code>popup.js</code>).</li>
+          <li>The extension <strong>"Yotpo Order Exporter"</strong> will now appear in your extensions bar! Click its icon to launch the tool anytime.</li>
+        </ol>
+      </div>
+    </div>
+  </div>
+
   <script>
     // Code Copy Helper
     function copyCodeBlock(elementId, btn) {
       const codeContainer = document.getElementById(elementId);
       const tempTextArea = document.createElement('textarea');
       
-      // Decode HTML entities (like &lt; to <) for clean copying
       tempTextArea.innerHTML = codeContainer.innerHTML;
       const textToCopy = tempTextArea.value;
 
@@ -1614,7 +2466,6 @@ async function submitProductUpdate() {
             statusText.className = 'status success';
             statusText.innerText = 'uToken successfully retrieved!';
 
-            // Auto fill uToken into other tabs for convenience
             document.getElementById('u-token-single').value = utoken;
             document.getElementById('store-id-single').value = storeId;
             document.getElementById('u-token-all').value = utoken;
@@ -1680,7 +2531,7 @@ async function submitProductUpdate() {
     let allTotalMatches = 0;
 
     const CSV_HEADERS = [
-      "Product ID", "Product Name", "Product Description", "Product URL",
+      "Internal Product ID", "Product Id", "Product Name", "Product Description", "Product URL",
       "Product Image URL", "Product Price", "Currency", "Spec UPC",
       "Spec SKU", "Spec Brand", "Spec MPN", "Spec ISBN", "Spec EAN",
       "Product Tags", "Blacklisted", "Product Group"
@@ -1695,10 +2546,26 @@ async function submitProductUpdate() {
       }
     }
 
+    function initProductTableHeaders() {
+      const singleHeader = document.getElementById('single-table-header');
+      const allHeader = document.getElementById('all-table-header');
+      
+      const headerHTML = CSV_HEADERS.map(h => `<th>${h}</th>`).join('');
+      if (singleHeader) singleHeader.innerHTML = headerHTML;
+      if (allHeader) allHeader.innerHTML = headerHTML;
+    }
+
+    window.addEventListener('DOMContentLoaded', () => {
+      initProductTableHeaders();
+      addLineItem();
+    });
+
     function clearProductManagerTab() {
       document.getElementById('u-token-single').value = '';
       document.getElementById('store-id-single').value = '';
       document.getElementById('product-id-single').value = '';
+      document.getElementById('single-search-input').value = '';
+      document.getElementById('single-search-input').disabled = true;
       document.getElementById('u-token-all').value = '';
       document.getElementById('store-id-all').value = '';
       document.getElementById('search-input').value = '';
@@ -1709,6 +2576,7 @@ async function submitProductUpdate() {
       resetSingleSearch();
       document.getElementById('export-single-btn').disabled = true;
       document.getElementById('raw-response-single-search').disabled = true;
+      document.getElementById('single-table-body').innerHTML = `<tr><td colspan="17" style="text-align: center; color: var(--text-muted);">No product loaded yet.</td></tr>`;
       log('response-log-single', 'Ready for operation...');
 
       fetchedProducts = [];
@@ -1716,7 +2584,7 @@ async function submitProductUpdate() {
       resetAllSearch();
       document.getElementById('export-all-btn').disabled = true;
       document.getElementById('raw-response-search').disabled = true;
-      document.getElementById('product-table-body').innerHTML = `<tr><td colspan="3" style="text-align: center; color: var(--text-muted);">No products loaded. Click "Retrieve All Products" first.</td></tr>`;
+      document.getElementById('product-table-body').innerHTML = `<tr><td colspan="17" style="text-align: center; color: var(--text-muted);">No products loaded. Click "Retrieve All Products" first.</td></tr>`;
       log('response-log-all', 'Ready for operation...');
     }
 
@@ -1725,6 +2593,7 @@ async function submitProductUpdate() {
       const storeId = document.getElementById('store-id-single').value.trim();
       const productId = document.getElementById('product-id-single').value.trim();
       const exportBtn = document.getElementById('export-single-btn');
+      const singleSearchInput = document.getElementById('single-search-input');
       const rawSearchInput = document.getElementById('raw-response-single-search');
 
       if (!utoken || !storeId || !productId) {
@@ -1755,16 +2624,20 @@ async function submitProductUpdate() {
           log('response-log-single', "Product successfully retrieved!\n" + rawSingleResponseString);
           
           exportBtn.disabled = false;
+          singleSearchInput.disabled = false;
           rawSearchInput.disabled = false;
+          renderSingleTable(singleProductData);
           resetSingleSearch();
         } else {
           log('response-log-single', `Error fetching product (${response.status}):`, data);
           exportBtn.disabled = true;
+          singleSearchInput.disabled = true;
           rawSearchInput.disabled = true;
         }
       } catch (err) {
         log('response-log-single', `Network Error: ${err.message}`);
         exportBtn.disabled = true;
+        singleSearchInput.disabled = true;
         rawSearchInput.disabled = true;
       }
     }
@@ -1789,19 +2662,29 @@ async function submitProductUpdate() {
       fetchedProducts = [];
       rawAllResponseString = "";
       
-      let page = 1;
-      const perPage = 100;
+      let pageCount = 1;
+      const limit = 100;
+      let nextPageInfo = null;
       let keepFetching = true;
       const allRawResponses = [];
+      
+      const seenProductIds = new Set();
+      const MAX_PAGES_SAFETY_LIMIT = 500;
 
       log('response-log-all', "Initializing product catalog retrieval...");
 
       try {
-        while (keepFetching) {
-          log('response-log-all', `Fetching page ${page}... (Loaded ${fetchedProducts.length} products so far)`);
+        while (keepFetching && pageCount <= MAX_PAGES_SAFETY_LIMIT) {
+          log('response-log-all', `Fetching batch ${pageCount}... (Loaded ${fetchedProducts.length} unique products so far)`);
 
-          const url = `https://api.yotpo.com/core/v3/stores/${storeId}/products?utoken=${utoken}&page=${page}&per_page=${perPage}`;
+          let url = `https://api.yotpo.com/core/v3/stores/${storeId}/products?utoken=${utoken}&limit=${limit}&count=${limit}&per_page=${limit}`;
           
+          if (nextPageInfo) {
+            url += `&page_info=${encodeURIComponent(nextPageInfo)}`;
+          } else {
+            url += `&page=${pageCount}`;
+          }
+
           const response = await fetch(url, {
             method: 'GET',
             headers: { 'Accept': 'application/json' }
@@ -1811,38 +2694,54 @@ async function submitProductUpdate() {
 
           if (!response.ok) {
             const errorMsg = data.message || data.error || response.statusText;
-            throw new Error(`API Error on page ${page} (${response.status}): ${errorMsg}`);
+            throw new Error(`API Error on batch ${pageCount} (${response.status}): ${errorMsg}`);
           }
 
-          const productsChunk = data.products || data.yotpo_products || (Array.isArray(data) ? data : []);
+          const productsChunk = data.products || data.yotpo_products || (data.response && data.response.products) || (Array.isArray(data) ? data : []);
           allRawResponses.push(data);
 
-          if (!productsChunk || productsChunk.length === 0) {
-            log('response-log-all', `Reached end of catalog (Page ${page} returned 0 products). Stopping...`);
+          if (!productsChunk || !Array.isArray(productsChunk) || productsChunk.length === 0) {
+            log('response-log-all', `Reached end of catalog (Batch ${pageCount} returned 0 products). Stopping...`);
             keepFetching = false;
             break;
           }
 
-          fetchedProducts.push(...productsChunk);
-
-          if (productsChunk.length < perPage) {
-            keepFetching = false;
-            break;
+          let newProductsAddedThisPage = 0;
+          for (const prod of productsChunk) {
+            const prodId = prod.yotpo_id || prod.id || prod.external_id;
+            
+            if (prodId) {
+              if (!seenProductIds.has(prodId)) {
+                seenProductIds.add(prodId);
+                fetchedProducts.push(prod);
+                newProductsAddedThisPage++;
+              }
+            } else {
+              fetchedProducts.push(prod);
+              newProductsAddedThisPage++;
+            }
           }
 
-          const pagination = data.pagination || (data.response && data.response.pagination);
-          if (pagination && pagination.total && fetchedProducts.length >= pagination.total) {
-            keepFetching = false;
-            break;
+          const pagination = data.pagination || (data.response && data.response.pagination) || {};
+          const currentNextCursor = pagination.next_page_info || pagination.page_info || data.next_page_info || data.page_info;
+
+          if (currentNextCursor && currentNextCursor !== nextPageInfo) {
+            nextPageInfo = currentNextCursor;
+          } else {
+            nextPageInfo = null;
+            if (productsChunk.length < limit || newProductsAddedThisPage === 0) {
+              keepFetching = false;
+              break;
+            }
           }
 
-          page++;
+          pageCount++;
           await new Promise(resolve => setTimeout(resolve, 150));
         }
 
         rawAllResponseString = JSON.stringify(allRawResponses.length === 1 ? allRawResponses[0] : allRawResponses, null, 2);
 
-        log('response-log-all', `Success! Fully retrieved ${fetchedProducts.length} product(s) across ${page} page(s).\n\n` + rawAllResponseString);
+        log('response-log-all', `Success! Fully retrieved ${fetchedProducts.length} unique product(s) across ${pageCount} request(s).\n\n` + rawAllResponseString);
 
         searchInput.disabled = false;
         rawSearchInput.disabled = false;
@@ -1851,7 +2750,7 @@ async function submitProductUpdate() {
         resetAllSearch();
 
       } catch (err) {
-        log('response-log-all', `Failed during retrieval at page ${page}.\nError Details: ${err.message}\n\nProducts saved prior to failure: ${fetchedProducts.length}`);
+        log('response-log-all', `Failed during retrieval at batch ${pageCount}.\nError Details: ${err.message}\n\nProducts saved prior to failure: ${fetchedProducts.length}`);
         
         if (fetchedProducts.length > 0) {
           exportBtn.disabled = false;
@@ -1865,26 +2764,93 @@ async function submitProductUpdate() {
       }
     }
 
+    function extractProductRowValues(prod) {
+      const customProps = prod.custom_properties || {};
+      const specs = prod.specs || prod.attributes || {};
+      const gtins = Array.isArray(prod.gtins) ? prod.gtins : [];
+
+      const getGtinValue = (type) => {
+        const item = gtins.find(g => 
+          (g.declared_type && g.declared_type.toUpperCase() === type) ||
+          (g.detected_type && g.detected_type.toUpperCase() === type)
+        );
+        return item ? item.value : '';
+      };
+
+      const internalId = prod.yotpo_id || '';
+      const externalId = prod.external_id || prod.id || '';
+      const name = prod.name || prod.title || '';
+      const description = prod.description || '';
+      const url = prod.url || prod.product_url || '';
+      const imageUrl = prod.image_url || prod.featured_image || '';
+      const price = prod.price !== undefined && prod.price !== null ? prod.price : '';
+      const currency = prod.currency || '';
+      const upcVal = getGtinValue('UPC') || prod.upc || specs.upc || customProps.upc || '';
+      const skuVal = prod.sku || specs.sku || customProps.sku || '';
+      const brandVal = prod.brand || specs.brand || customProps.brand || '';
+      const mpnVal = prod.mpn || specs.mpn || customProps.mpn || '';
+      const isbnVal = getGtinValue('ISBN') || prod.isbn || specs.isbn || customProps.isbn || '';
+      const eanVal = getGtinValue('EAN') || prod.ean || specs.ean || customProps.ean || '';
+      const tags = customProps.review_form_tag || prod.review_form_tag || (Array.isArray(prod.tags) ? prod.tags.join(';') : (prod.tags || ''));
+      const blacklisted = customProps.is_blocklisted !== undefined ? customProps.is_blocklisted : (prod.is_blocklisted !== undefined ? prod.is_blocklisted : (prod.blacklisted !== undefined ? prod.blacklisted : ''));
+      const group = prod.group_name || prod.product_group || prod.group || '';
+
+      return [
+        internalId, externalId, name, description, url, imageUrl, price, currency,
+        upcVal, skuVal, brandVal, mpnVal, isbnVal, eanVal, tags, blacklisted, group
+      ];
+    }
+
+    function renderSingleTable(prod) {
+      const tbody = document.getElementById('single-table-body');
+      tbody.innerHTML = '';
+
+      if (!prod) {
+        tbody.innerHTML = `<tr><td colspan="17" style="text-align: center; color: var(--text-muted);">No product loaded yet.</td></tr>`;
+        return;
+      }
+
+      const rowValues = extractProductRowValues(prod);
+      const tr = document.createElement('tr');
+      tr.innerHTML = rowValues.map(val => `<td title="${val !== undefined && val !== null ? val : ''}">${val !== undefined && val !== null ? val : ''}</td>`).join('');
+      tbody.appendChild(tr);
+    }
+
+    function filterSingleProductTable() {
+      const query = document.getElementById('single-search-input').value.toLowerCase().trim();
+      const tbody = document.getElementById('single-table-body');
+
+      if (!singleProductData) return;
+
+      if (!query) {
+        renderSingleTable(singleProductData);
+        return;
+      }
+
+      const internalId = String(singleProductData.yotpo_id || '').toLowerCase();
+      const externalId = String(singleProductData.external_id || singleProductData.id || '').toLowerCase();
+      const name = String(singleProductData.name || singleProductData.title || '').toLowerCase();
+
+      if (internalId.includes(query) || externalId.includes(query) || name.includes(query)) {
+        renderSingleTable(singleProductData);
+      } else {
+        tbody.innerHTML = `<tr><td colspan="17" style="text-align: center; color: var(--text-muted);">No matching product details found.</td></tr>`;
+      }
+    }
+
     function renderProductTable(products) {
       const tbody = document.getElementById('product-table-body');
       tbody.innerHTML = '';
 
       if (!products || products.length === 0) {
-        tbody.innerHTML = `<tr><td colspan="3" style="text-align: center; color: var(--text-muted);">No matching products found.</td></tr>`;
+        tbody.innerHTML = `<tr><td colspan="17" style="text-align: center; color: var(--text-muted);">No matching products found.</td></tr>`;
         return;
       }
 
       products.forEach(prod => {
+        const rowValues = extractProductRowValues(prod);
         const tr = document.createElement('tr');
-        const id = prod.yotpo_id || prod.id || prod.external_id || 'N/A';
-        const name = prod.name || prod.title || 'Untitled';
-        const price = prod.price !== undefined ? prod.price : 'N/A';
-
-        tr.innerHTML = `
-          <td><strong>${id}</strong></td>
-          <td>${name}</td>
-          <td>${price}</td>
-        `;
+        tr.innerHTML = rowValues.map(val => `<td title="${val !== undefined && val !== null ? val : ''}">${val !== undefined && val !== null ? val : ''}</td>`).join('');
         tbody.appendChild(tr);
       });
     }
@@ -1898,9 +2864,10 @@ async function submitProductUpdate() {
       }
 
       const filtered = fetchedProducts.filter(prod => {
-        const id = String(prod.yotpo_id || prod.id || prod.external_id || '').toLowerCase();
+        const internalId = String(prod.yotpo_id || '').toLowerCase();
+        const externalId = String(prod.external_id || prod.id || '').toLowerCase();
         const name = String(prod.name || prod.title || '').toLowerCase();
-        return id.includes(query) || name.includes(query);
+        return internalId.includes(query) || externalId.includes(query) || name.includes(query);
       });
 
       renderProductTable(filtered);
@@ -2061,26 +3028,7 @@ async function submitProductUpdate() {
     }
 
     function mapProductToCSVRow(prod) {
-      const specs = prod.specs || prod.attributes || {};
-      const row = [
-        prod.external_id || prod.yotpo_id || prod.id || '',
-        prod.name || prod.title || '',
-        prod.description || '',
-        prod.url || prod.product_url || '',
-        prod.image_url || prod.featured_image || '',
-        prod.price !== undefined ? prod.price : '',
-        prod.currency || '',
-        specs.upc || prod.upc || '',
-        specs.sku || prod.sku || '',
-        specs.brand || prod.brand || '',
-        specs.mpn || prod.mpn || '',
-        specs.isbn || prod.isbn || '',
-        specs.ean || prod.ean || '',
-        Array.isArray(prod.tags) ? prod.tags.join(';') : (prod.tags || ''),
-        prod.blacklisted !== undefined ? prod.blacklisted : '',
-        prod.product_group || prod.group || ''
-      ];
-
+      const row = extractProductRowValues(prod);
       return row.map(val => {
         const str = String(val !== null && val !== undefined ? val : '').replace(/"/g, '""');
         return `"${str}"`;
@@ -2102,7 +3050,7 @@ async function submitProductUpdate() {
     function exportSingleCSV() {
       if (!singleProductData) return;
       const csvRows = [CSV_HEADERS.join(','), mapProductToCSVRow(singleProductData)];
-      const productId = singleProductData.external_id || singleProductData.yotpo_id || 'product';
+      const productId = singleProductData.external_id || singleProductData.yotpo_id || singleProductData.id || 'product';
       downloadCSV(csvRows.join('\n'), `yotpo_product_${productId}.csv`);
     }
 
@@ -2112,9 +3060,10 @@ async function submitProductUpdate() {
 
       if (query) {
         productsToExport = fetchedProducts.filter(prod => {
-          const id = String(prod.yotpo_id || prod.id || prod.external_id || '').toLowerCase();
+          const internalId = String(prod.yotpo_id || '').toLowerCase();
+          const externalId = String(prod.external_id || prod.id || '').toLowerCase();
           const name = String(prod.name || prod.title || '').toLowerCase();
-          return id.includes(query) || name.includes(query);
+          return internalId.includes(query) || externalId.includes(query) || name.includes(query);
         });
       }
 
@@ -2216,10 +3165,6 @@ async function submitProductUpdate() {
         fulWrapper.appendChild(fulDiv);
       });
     }
-
-    window.addEventListener('DOMContentLoaded', () => {
-      addLineItem();
-    });
 
     async function submitOrder() {
       const storeId = document.getElementById('orderStoreId').value.trim();
