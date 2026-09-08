@@ -465,6 +465,32 @@
       margin-bottom: 15px;
     }
 
+    /* Helper styles for test values */
+    .helper-text {
+      font-size: 0.72rem;
+      color: var(--accent-cyan);
+      margin-top: 4px;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .btn-inline-copy {
+      background: #192C45;
+      color: var(--accent-cyan);
+      border: 1px solid var(--card-border);
+      padding: 2px 6px;
+      font-size: 0.7rem;
+      border-radius: 4px;
+      cursor: pointer;
+      font-weight: 600;
+    }
+
+    .btn-inline-copy:hover {
+      background: #223A5B;
+      border-color: var(--accent-cyan);
+    }
+
     /* Specific Styles for Tab 1 (uToken Retriever) */
     .token-display {
       margin-top: 20px;
@@ -625,7 +651,7 @@
 
   <div class="tab-nav">
     <button class="tab-btn active" onclick="switchTab(event, 'tab-utoken')">uToken Retriever</button>
-    <button class="tab-btn" onclick="switchTab(event, 'tab-products')">Product Export</button>
+    <button class="tab-btn" onclick="switchTab(event, 'tab-products')">Product Manager</button>
     <button class="tab-btn" onclick="switchTab(event, 'tab-orders')">Create Order</button>
     <button class="tab-btn" onclick="switchTab(event, 'tab-questions')">Custom Questions Separator</button>
     <button class="tab-btn" onclick="switchTab(event, 'tab-fixer')">CSV Character Fixer</button>
@@ -811,7 +837,11 @@
         </div>
         <div class="form-group">
           <label for="orderDate">Order Date (ISO 8601):</label>
-          <input type="text" id="orderDate" placeholder="e.g. 2021-03-25T13:57:05Z">
+          <input type="text" id="orderDate" placeholder="e.g. 2026-01-01T13:57:05Z">
+          <div class="helper-text">
+            <span>Test value: <code>2026-01-01T13:57:05Z</code></span>
+            <button type="button" class="btn-inline-copy" onclick="fillTestValue('orderDate', '2026-01-01T13:57:05Z')">Use Test Value</button>
+          </div>
         </div>
       </div>
 
@@ -847,7 +877,11 @@
         </div>
         <div class="form-group">
           <label for="fulDate">Fulfillment Date (ISO 8601):</label>
-          <input type="text" id="fulDate" placeholder="e.g. 2021-03-31T11:58:51Z">
+          <input type="text" id="fulDate" placeholder="e.g. 2026-01-02T13:57:05Z">
+          <div class="helper-text">
+            <span>Test value: <code>2026-01-02T13:57:05Z</code></span>
+            <button type="button" class="btn-inline-copy" onclick="fillTestValue('fulDate', '2026-01-02T13:57:05Z')">Use Test Value</button>
+          </div>
         </div>
         <div class="form-group full-width">
           <label for="fulStatus">Fulfillment Status:</label>
@@ -2388,6 +2422,14 @@ function exportSingleOrderCSV() {
   </div>
 
   <script>
+    // Helper function to insert test values into input fields
+    function fillTestValue(inputId, value) {
+      const input = document.getElementById(inputId);
+      if (input) {
+        input.value = value;
+      }
+    }
+
     // Code Copy Helper
     function copyCodeBlock(elementId, btn) {
       const codeContainer = document.getElementById(elementId);
