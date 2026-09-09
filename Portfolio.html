@@ -226,6 +226,154 @@
     max-width: 62ch;
   }
 
+  /* ---------- achievements & interactive gallery ---------- */
+  .gallery-grid{
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 20px;
+  }
+  @media (max-width: 640px){ .gallery-grid{ grid-template-columns: 1fr; } }
+
+  .img-card{
+    border: 1px solid var(--line);
+    border-radius: 10px;
+    background: var(--surface);
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+    transition: transform 0.2s ease, border-color 0.2s ease;
+    cursor: pointer;
+  }
+  .img-card:hover{
+    border-color: var(--accent);
+    transform: translateY(-3px);
+  }
+  .img-container{
+    width: 100%;
+    background: var(--surface-2);
+    border-bottom: 1px solid var(--line);
+    overflow: hidden;
+    position: relative;
+  }
+  .img-container img{
+    width: 100%;
+    height: auto;
+    max-height: 260px;
+    object-fit: cover;
+    object-position: top;
+    display: block;
+    transition: opacity 0.2s ease, transform 0.3s ease;
+  }
+  .img-card:hover .img-container img{
+    opacity: 0.85;
+    transform: scale(1.02);
+  }
+  .zoom-badge{
+    position: absolute;
+    bottom: 10px; right: 10px;
+    background: rgba(13, 17, 23, 0.85);
+    color: var(--accent);
+    font-family: var(--font-mono);
+    font-size: 11px;
+    padding: 3px 8px;
+    border-radius: 4px;
+    border: 1px solid var(--accent-dim);
+    pointer-events: none;
+    backdrop-filter: blur(4px);
+  }
+  .img-info{
+    padding: 16px 18px;
+  }
+  .img-info h3{
+    font-family: var(--font-display);
+    font-size: 1rem;
+    margin: 0 0 6px;
+    color: var(--text);
+  }
+  .img-info p{
+    margin: 0;
+    font-size: 13px;
+    color: var(--text-muted);
+  }
+
+  /* ---------- full-screen lightbox modal ---------- */
+  .lightbox-modal{
+    position: fixed;
+    top: 0; left: 0; width: 100%; height: 100%;
+    background: rgba(8, 11, 15, 0.92);
+    backdrop-filter: blur(8px);
+    z-index: 100;
+    display: none;
+    align-items: center;
+    justify-content: center;
+    padding: 24px;
+    opacity: 0;
+    transition: opacity 0.25s ease;
+  }
+  .lightbox-modal.active{
+    display: flex;
+    opacity: 1;
+  }
+  .lightbox-content{
+    max-width: 800px;
+    width: 100%;
+    background: var(--surface);
+    border: 1px solid var(--line);
+    border-radius: 12px;
+    overflow: hidden;
+    position: relative;
+    box-shadow: 0 20px 40px rgba(0,0,0,0.6);
+  }
+  .lightbox-body{
+    max-height: 70vh;
+    overflow-y: auto;
+    background: var(--surface-2);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+  .lightbox-body img{
+    max-width: 100%;
+    max-height: 70vh;
+    height: auto;
+    object-fit: contain;
+    display: block;
+  }
+  .lightbox-caption{
+    padding: 20px 24px;
+    border-top: 1px solid var(--line);
+    background: var(--surface);
+  }
+  .lightbox-caption h3{
+    margin: 0 0 6px;
+    font-family: var(--font-display);
+    font-size: 1.15rem;
+    color: var(--accent);
+  }
+  .lightbox-caption p{
+    margin: 0;
+    color: var(--text-muted);
+    font-size: 14px;
+  }
+  .close-btn{
+    position: absolute;
+    top: 12px; right: 12px;
+    background: var(--surface);
+    color: var(--text);
+    border: 1px solid var(--line);
+    width: 32px; height: 32px;
+    border-radius: 50%;
+    font-size: 18px;
+    cursor: pointer;
+    display: flex; align-items: center; justify-content: center;
+    z-index: 2;
+    transition: color 0.15s ease, border-color 0.15s ease;
+  }
+  .close-btn:hover{
+    color: var(--accent);
+    border-color: var(--accent);
+  }
+
   /* ---------- skills ---------- */
   .skill-groups{
     display:grid;
@@ -272,6 +420,16 @@
     color: var(--text-muted);
     white-space: nowrap;
   }
+  .degree-badge{
+    font-family: var(--font-mono);
+    font-size: 11px;
+    padding: 2px 8px;
+    border-radius: 100px;
+    border: 1px solid var(--accent-dim);
+    color: var(--accent);
+    margin-left: 8px;
+    vertical-align: middle;
+  }
 
   /* ---------- footer / close ticket ---------- */
   footer{
@@ -280,13 +438,6 @@
     border-top: 1px solid var(--line);
     text-align: center;
   }
-  footer .close-line{
-    font-family: var(--font-mono);
-    font-size: 12.5px;
-    color: var(--text-muted);
-    margin-bottom: 18px;
-  }
-  footer .close-line b{ color: var(--accent); }
   .cta{
     display:inline-flex; align-items:center; gap:8px;
     padding: 12px 22px;
@@ -312,6 +463,8 @@
     <div class="brand">Nabong's <strong>Portfolio</strong></div>
     <nav class="topnav">
       <a href="#experience">Experience</a>
+      <a href="#achievements">Achievements</a>
+      <a href="#surveys">Surveys</a>
       <a href="#skills">Skills</a>
       <a href="#education">Education</a>
       <a href="#contact">Contact</a>
@@ -411,16 +564,174 @@
     </div>
   </section>
 
+  <!-- ACHIEVEMENTS -->
+  <section id="achievements">
+    <div class="section-head">
+      <span class="index">02</span>
+      <h2>Achievements & Recognitions</h2>
+      <span class="rule"></span>
+    </div>
+
+    <div class="gallery-grid">
+
+      <div class="img-card" onclick="openLightbox('promoted.jpg', 'UGC T1 Enterprise Promotion', 'Official milestone banner celebrating promotion to the Enterprise Support Tier.')">
+        <div class="img-container">
+          <img src="promoted.jpg" alt="Promotion Banner to Enterprise Support">
+          <span class="zoom-badge">Click to enlarge ↗</span>
+        </div>
+        <div class="img-info">
+          <h3>UGC T1 Enterprise Promotion</h3>
+          <p>Official milestone banner celebrating promotion to the Enterprise Support Tier.</p>
+        </div>
+      </div>
+
+      <div class="img-card" onclick="openLightbox('promoted2.jpg', 'Enterprise Promotion Announcement', 'Company-wide recognition highlighting dedication, resilience, and technical excellence.')">
+        <div class="img-container">
+          <img src="promoted2.jpg" alt="Company Announcement of Promotion">
+          <span class="zoom-badge">Click to enlarge ↗</span>
+        </div>
+        <div class="img-info">
+          <h3>Enterprise Promotion Announcement</h3>
+          <p>Company-wide recognition highlighting dedication, resilience, and technical excellence.</p>
+        </div>
+      </div>
+
+      <div class="img-card" onclick="openLightbox('top2.jpg', 'March Superstar Spotlight', 'Ranked top performer for 6 consecutive months with 12 five-star Shopify reviews in a single month.')">
+        <div class="img-container">
+          <img src="top2.jpg" alt="March Superstar Recognition Banner">
+          <span class="zoom-badge">Click to enlarge ↗</span>
+        </div>
+        <div class="img-info">
+          <h3>March Superstar Spotlight</h3>
+          <p>Ranked top performer for 6 consecutive months with 12 five-star Shopify reviews in a single month.</p>
+        </div>
+      </div>
+
+      <div class="img-card" onclick="openLightbox('top.png', 'Most Shopify Surveys Award', 'Kudos award for earning the most positive Shopify customer survey submissions in October.')">
+        <div class="img-container">
+          <img src="top.png" alt="Most Shopify Surveys Award">
+          <span class="zoom-badge">Click to enlarge ↗</span>
+        </div>
+        <div class="img-info">
+          <h3>Most Shopify Surveys Award</h3>
+          <p>Kudos award for earning the most positive Shopify customer survey submissions in October.</p>
+        </div>
+      </div>
+
+      <div class="img-card" onclick="openLightbox('review5.jpg', 'Top Performer Spotlight', 'Recognized for outstanding ownership, reliability, and staying composed under pressure.')">
+        <div class="img-container">
+          <img src="review5.jpg" alt="Top Performers Spotlight Recognition">
+          <span class="zoom-badge">Click to enlarge ↗</span>
+        </div>
+        <div class="img-info">
+          <h3>Top Performer Spotlight</h3>
+          <p>Recognized for outstanding ownership, reliability, and staying composed under pressure.</p>
+        </div>
+      </div>
+
+    </div>
+  </section>
+
+  <!-- CUSTOMER SURVEYS & REVIEWS -->
+  <section id="surveys">
+    <div class="section-head">
+      <span class="index">03</span>
+      <h2>Customer Surveys & Reviews</h2>
+      <span class="rule"></span>
+    </div>
+
+    <div class="gallery-grid">
+
+      <div class="img-card" onclick="openLightbox('review7.jpg', '5-Star App Review — Vego Garden', '&quot;Best support representative I\'ve interacted with... took the initiative to offer a call to resolve the issue.&quot;')">
+        <div class="img-container">
+          <img src="review7.jpg" alt="Vego Garden 5-Star Review">
+          <span class="zoom-badge">Click to enlarge ↗</span>
+        </div>
+        <div class="img-info">
+          <h3>5-Star App Review — Vego Garden</h3>
+          <p>"Best support representative I've interacted with... took the initiative to offer a call to resolve the issue."</p>
+        </div>
+      </div>
+
+      <div class="img-card" onclick="openLightbox('reveiw2.jpg', 'Screen-Share Resolution Survey', 'Resolved issue via text & screen-share session despite merchant having no mic or camera.')">
+        <div class="img-container">
+          <img src="reveiw2.jpg" alt="5-Star Screen Share Session Review">
+          <span class="zoom-badge">Click to enlarge ↗</span>
+        </div>
+        <div class="img-info">
+          <h3>Screen-Share Resolution Survey</h3>
+          <p>Resolved issue via text & screen-share session despite merchant having no mic or camera.</p>
+        </div>
+      </div>
+
+      <div class="img-card" onclick="openLightbox('review6.jpg', 'US & UK Syndication Fix', 'Unblocked review syndication across multi-regional merchant sites with clear technical communication.')">
+        <div class="img-container">
+          <img src="review6.jpg" alt="Syndication Issue Resolution Feedback">
+          <span class="zoom-badge">Click to enlarge ↗</span>
+        </div>
+        <div class="img-info">
+          <h3>US & UK Syndication Fix</h3>
+          <p>Unblocked review syndication across multi-regional merchant sites with clear technical communication.</p>
+        </div>
+      </div>
+
+      <div class="img-card" onclick="openLightbox('review8.jpg', 'WooCommerce Widget Integration', '&quot;Resolved the issue quickly and effortlessly... jumped on a call to walk me through everything. A+.&quot;')">
+        <div class="img-container">
+          <img src="review8.jpg" alt="WooCommerce Review Widget Integration">
+          <span class="zoom-badge">Click to enlarge ↗</span>
+        </div>
+        <div class="img-info">
+          <h3>WooCommerce Widget Integration</h3>
+          <p>"Resolved the issue quickly and effortlessly... jumped on a call to walk me through everything. A+."</p>
+        </div>
+      </div>
+
+      <div class="img-card" onclick="openLightbox('review1.jpg', 'Enterprise Case Survey & Management Shoutout', 'Direct positive survey score praised by Director of Global Support and Team Leaders.')">
+        <div class="img-container">
+          <img src="review1.jpg" alt="Enterprise Survey Case Feedback">
+          <span class="zoom-badge">Click to enlarge ↗</span>
+        </div>
+        <div class="img-info">
+          <h3>Enterprise Case Survey & Management Shoutout</h3>
+          <p>Direct positive survey score praised by Director of Global Support and Team Leaders.</p>
+        </div>
+      </div>
+
+      <div class="img-card" onclick="openLightbox('reveiw3.jpg', 'Syndication Troubleshoot Feedback', '&quot;Ruzsel was amazing! He took time to troubleshoot our syndication issues. Highly recommend!&quot;')">
+        <div class="img-container">
+          <img src="reveiw3.jpg" alt="Shopify App Store Syndication Review">
+          <span class="zoom-badge">Click to enlarge ↗</span>
+        </div>
+        <div class="img-info">
+          <h3>Syndication Troubleshoot Feedback</h3>
+          <p>"Ruzsel was amazing! He took time to troubleshoot our syndication issues. Highly recommend!"</p>
+        </div>
+      </div>
+
+      <div class="img-card" onclick="openLightbox('review4.jpg', 'Website Integration Advice', '&quot;Provided helpful tips on how to integrate YOTPO reviews more onto our website!&quot;')">
+        <div class="img-container">
+          <img src="review4.jpg" alt="Yotpo Integration Tip Review">
+          <span class="zoom-badge">Click to enlarge ↗</span>
+        </div>
+        <div class="img-info">
+          <h3>Website Integration Advice</h3>
+          <p>"Provided helpful tips on how to integrate YOTPO reviews more onto our website!"</p>
+        </div>
+      </div>
+
+    </div>
+  </section>
+
   <!-- SKILLS -->
   <section id="skills">
     <div class="section-head">
-      <span class="index">02</span>
+      <span class="index">04</span>
       <h2>Skills and tools</h2>
       <span class="rule"></span>
     </div>
     <div class="skill-groups">
       <div class="skill-group">
-        <h4>Languages</h4>
+        <h4>Skills</h4>
         <div class="chip-row">
           <span class="chip">HTML</span>
           <span class="chip">CSS</span>
@@ -451,13 +762,13 @@
   <!-- EDUCATION -->
   <section id="education">
     <div class="section-head">
-      <span class="index">03</span>
+      <span class="index">05</span>
       <h2>Education</h2>
       <span class="rule"></span>
     </div>
     <div class="edu-card">
       <div>
-        <h3>Bachelor of Science in Information Technology</h3>
+        <h3>Bachelor of Science in Information Technology <span class="degree-badge">College Degree</span></h3>
         <div class="school">Don Honorio Ventura State University</div>
       </div>
       <div class="years">2018 — 2022</div>
@@ -471,6 +782,47 @@
   </footer>
 
 </div>
+
+<!-- LIGHTBOX MODAL CONTAINER -->
+<div id="lightbox" class="lightbox-modal" onclick="closeLightbox(event)">
+  <div class="lightbox-content">
+    <button class="close-btn" onclick="closeLightbox(event)">&times;</button>
+    <div class="lightbox-body">
+      <img id="lightbox-img" src="" alt="Full view image">
+    </div>
+    <div class="lightbox-caption">
+      <h3 id="lightbox-title">Title</h3>
+      <p id="lightbox-desc">Description</p>
+    </div>
+  </div>
+</div>
+
+<script>
+  function openLightbox(src, title, desc) {
+    const modal = document.getElementById('lightbox');
+    document.getElementById('lightbox-img').src = src;
+    document.getElementById('lightbox-title').textContent = title;
+    document.getElementById('lightbox-desc').textContent = desc;
+    modal.classList.add('active');
+    document.body.style.overflow = 'hidden';
+  }
+
+  function closeLightbox(e) {
+    if (e.target.classList.contains('lightbox-modal') || e.target.classList.contains('close-btn')) {
+      const modal = document.getElementById('lightbox');
+      modal.classList.remove('active');
+      document.body.style.overflow = 'auto';
+    }
+  }
+
+  document.addEventListener('keydown', function(e) {
+    if (e.key === 'Escape') {
+      const modal = document.getElementById('lightbox');
+      modal.classList.remove('active');
+      document.body.style.overflow = 'auto';
+    }
+  });
+</script>
 
 </body>
 </html>
