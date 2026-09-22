@@ -1331,7 +1331,7 @@
     &lt;!-- Step 3: Edit Selected Attributes &amp; Preview Payload --&gt;
     &lt;div id="stepEdit" class="card hidden"&gt;
         &lt;h2&gt;3. Edit Values &amp; Preview Update Payload&lt;/h2&gt;
-        &nbsp;
+        
         &lt;div id="fieldsContainer" class="grid" style="margin-bottom: 12px;"&gt;&lt;/div&gt;
 
         &lt;label for="jsonPreview"&gt;Generated Payload (Editable JSON):&lt;/label&gt;
@@ -1448,33 +1448,33 @@ function buildFormAndPreview() {
             }
 
             group.innerHTML = `
-                <label>${attr} (JSON Array):</label>
-                <textarea rows="5" data-attr="${attr}">${formattedGtins}</textarea>
+                &lt;label&gt;${attr} (JSON Array):&lt;/label&gt;
+                &lt;textarea rows="5" data-attr="${attr}"&gt;${formattedGtins}&lt;/textarea&gt;
             `;
         } else if (attr === 'custom_properties') {
             const defaultProps = existingVal && typeof existingVal === 'object' ? JSON.stringify(existingVal, null, 2) : '{\n  "is_blocklisted": false,\n  "review_form_tag": ""\n}';
             group.innerHTML = `
-                <label>${attr} (JSON Object):</label>
-                <textarea rows="4" data-attr="${attr}">${defaultProps}</textarea>
+                &lt;label&gt;${attr} (JSON Object):&lt;/label&gt;
+                &lt;textarea rows="4" data-attr="${attr}"&gt;${defaultProps}&lt;/textarea&gt;
             `;
         } else if (attr === 'is_discontinued') {
             const isTrue = existingVal === true;
             group.innerHTML = `
-                <label>${attr}:</label>
-                <select data-attr="${attr}">
-                    <option value="false" ${!isTrue ? 'selected' : ''}>false</option>
-                    <option value="true" ${isTrue ? 'selected' : ''}>true</option>
-                </select>
+                &lt;label&gt;${attr}:&lt;/label&gt;
+                &lt;select data-attr="${attr}"&gt;
+                    &lt;option value="false" ${!isTrue ? 'selected' : ''}&gt;false&lt;/option&gt;
+                    &lt;option value="true" ${isTrue ? 'selected' : ''}&gt;true&lt;/option&gt;
+                &lt;/select&gt;
             `;
         } else if (['price', 'compare_at_price', 'inventory_quantity'].includes(attr)) {
             group.innerHTML = `
-                <label>${attr}:</label>
-                <input type="number" step="any" data-attr="${attr}" value="${existingVal !== undefined ? existingVal : ''}">
+                &lt;label&gt;${attr}:&lt;/label&gt;
+                &lt;input type="number" step="any" data-attr="${attr}" value="${existingVal !== undefined ? existingVal : ''}"&gt;
             `;
         } else {
             group.innerHTML = `
-                <label>${attr}:</label>
-                <input type="text" data-attr="${attr}" value="${existingVal !== undefined ? existingVal : ''}">
+                &lt;label&gt;${attr}:&lt;/label&gt;
+                &lt;input type="text" data-attr="${attr}" value="${existingVal !== undefined ? existingVal : ''}"&gt;
             `;
         }
 
@@ -2029,7 +2029,7 @@ const customerEmailCache = {};
 
 document.addEventListener('DOMContentLoaded', () => {
   // Restore saved credentials safely
-  if (chrome.storage && chrome.storage.local) {
+  if (chrome.storage &amp;&amp; chrome.storage.local) {
     chrome.storage.local.get(['appKey', 'uToken', 'singleOrderId'], (result) => {
       if (result.appKey) document.getElementById('appKey').value = result.appKey;
       if (result.uToken) document.getElementById('uToken').value = result.uToken;
@@ -2085,15 +2085,15 @@ function clearAll() {
   document.getElementById('searchAllOrders').disabled = true;
   document.getElementById('searchSingleOrder').disabled = true;
 
-  document.getElementById('allOrdersContainer').innerHTML = '<span style="font-size:0.75rem; color: var(--text-muted);">Click "Fetch All" to load orders.</span>';
-  document.getElementById('singleOrderContainer').innerHTML = '<span style="font-size:0.75rem; color: var(--text-muted);">Enter Order ID and fetch.</span>';
+  document.getElementById('allOrdersContainer').innerHTML = '&lt;span style="font-size:0.75rem; color: var(--text-muted);"&gt;Click "Fetch All" to load orders.&lt;/span&gt;';
+  document.getElementById('singleOrderContainer').innerHTML = '&lt;span style="font-size:0.75rem; color: var(--text-muted);"&gt;Enter Order ID and fetch.&lt;/span&gt;';
 
   document.getElementById('allOrdersJson').innerText = '// Raw payload will appear here...';
   document.getElementById('singleOrderJson').innerText = '// Raw payload will appear here...';
 
   clearError();
 
-  if (chrome.storage && chrome.storage.local) {
+  if (chrome.storage &amp;&amp; chrome.storage.local) {
     chrome.storage.local.remove(['appKey', 'uToken', 'singleOrderId']);
   }
 }
@@ -2139,7 +2139,7 @@ function flattenObject(obj, prefix = '', result = {}) {
     const propName = prefix ? `${prefix}_${key}` : key;
     const value = obj[key];
 
-    if (value !== null && typeof value === 'object' && !Array.isArray(value)) {
+    if (value !== null &amp;&amp; typeof value === 'object' &amp;&amp; !Array.isArray(value)) {
       flattenObject(value, propName, result);
     } else if (!Array.isArray(value)) {
       result[propName] = (value === null || value === undefined) ? '' : value;
@@ -2171,12 +2171,12 @@ function processOrdersForCSV(ordersArray) {
 
     const flatOrder = flattenObject(orderBase);
 
-    if (Array.isArray(fulfillments) && fulfillments.length > 0) {
+    if (Array.isArray(fulfillments) &amp;&amp; fulfillments.length &gt; 0) {
       const flatFulfillment = flattenObject(fulfillments[0], 'fulfillment');
       Object.assign(flatOrder, flatFulfillment);
     }
 
-    if (Array.isArray(items) && items.length > 0) {
+    if (Array.isArray(items) &amp;&amp; items.length &gt; 0) {
       items.forEach(item => {
         const flatItem = flattenObject(item, 'item');
         flattenedRows.push({ ...flatOrder, ...flatItem });
@@ -2191,14 +2191,14 @@ function processOrdersForCSV(ordersArray) {
 
 function renderOrdersTable(rawOrdersArray, container) {
   if (!rawOrdersArray || rawOrdersArray.length === 0) {
-    container.innerHTML = '<span style="font-size: 0.75rem; color: var(--text-muted);">No orders found.</span>';
+    container.innerHTML = '&lt;span style="font-size: 0.75rem; color: var(--text-muted);"&gt;No orders found.&lt;/span&gt;';
     return;
   }
 
   const flattenedRows = processOrdersForCSV(rawOrdersArray);
 
   if (flattenedRows.length === 0) {
-    container.innerHTML = '<span style="font-size: 0.75rem; color: var(--text-muted);">No rows available.</span>';
+    container.innerHTML = '&lt;span style="font-size: 0.75rem; color: var(--text-muted);"&gt;No rows available.&lt;/span&gt;';
     return;
   }
 
@@ -2209,28 +2209,28 @@ function renderOrdersTable(rawOrdersArray, container) {
   });
   const headers = Array.from(headersSet);
 
-  let html = `<table>
-    <thead>
-      <tr>`;
+  let html = `&lt;table&gt;
+    &lt;thead&gt;
+      &lt;tr&gt;`;
   
   headers.forEach(h => {
-    html += `<th>${h}</th>`;
+    html += `&lt;th&gt;${h}&lt;/th&gt;`;
   });
 
-  html += `</tr>
-    </thead>
-    <tbody>`;
+  html += `&lt;/tr&gt;
+    &lt;/thead&gt;
+    &lt;tbody&gt;`;
 
   flattenedRows.forEach(row => {
-    html += `<tr>`;
+    html += `&lt;tr&gt;`;
     headers.forEach(header => {
-      const val = row[header] !== undefined && row[header] !== null ? String(row[header]) : '';
-      html += `<td title="${val}">${val}</td>`;
+      const val = row[header] !== undefined &amp;&amp; row[header] !== null ? String(row[header]) : '';
+      html += `&lt;td title="${val}"&gt;${val}&lt;/td&gt;`;
     });
-    html += `</tr>`;
+    html += `&lt;/tr&gt;`;
   });
 
-  html += `</tbody></table>`;
+  html += `&lt;/tbody&gt;&lt;/table&gt;`;
   container.innerHTML = html;
 }
 
@@ -2265,7 +2265,7 @@ async function fetchAllOrders() {
   const jsonPreview = document.getElementById('allOrdersJson');
   const searchInput = document.getElementById('searchAllOrders');
 
-  container.innerHTML = '<span style="font-size:0.75rem; color: var(--accent-cyan);">Loading orders & customer emails...</span>';
+  container.innerHTML = '&lt;span style="font-size:0.75rem; color: var(--accent-cyan);"&gt;Loading orders &amp; customer emails...&lt;/span&gt;';
   jsonPreview.innerText = '// Loading raw payload...';
 
   const url = `https://api.yotpo.com/core/v3/stores/${storeId}/orders`;
@@ -2292,7 +2292,7 @@ async function fetchAllOrders() {
     searchInput.value = '';
     renderOrdersTable(allOrdersData, container);
   } catch (err) {
-    container.innerHTML = `<span style="color:#ff6b6b; font-size: 0.75rem;">Failed: ${err.message}</span>`;
+    container.innerHTML = `&lt;span style="color:#ff6b6b; font-size: 0.75rem;"&gt;Failed: ${err.message}&lt;/span&gt;`;
     jsonPreview.innerText = `// Error: ${err.message}`;
   }
 }
@@ -2312,7 +2312,7 @@ async function fetchSingleOrder() {
   const jsonPreview = document.getElementById('singleOrderJson');
   const searchInput = document.getElementById('searchSingleOrder');
 
-  container.innerHTML = '<span style="font-size:0.75rem; color: var(--accent-cyan);">Loading order details...</span>';
+  container.innerHTML = '&lt;span style="font-size:0.75rem; color: var(--accent-cyan);"&gt;Loading order details...&lt;/span&gt;';
   jsonPreview.innerText = '// Loading raw payload...';
 
   let url = `https://api.yotpo.com/core/v3/stores/${storeId}/orders/${orderId}`;
@@ -2356,7 +2356,7 @@ async function fetchSingleOrder() {
     searchInput.value = '';
     renderOrdersTable([singleOrderData], container);
   } catch (err) {
-    container.innerHTML = `<span style="color:#ff6b6b; font-size: 0.75rem;">Failed: ${err.message}</span>`;
+    container.innerHTML = `&lt;span style="color:#ff6b6b; font-size: 0.75rem;"&gt;Failed: ${err.message}&lt;/span&gt;`;
     jsonPreview.innerText = `// Error: ${err.message}`;
   }
 }
@@ -2436,13 +2436,10 @@ function exportSingleOrderCSV() {
       document.getElementById('fulDate').value = '2026-09-02T13:57:05Z';
     }
 
-    // Code Copy Helper
+    // Code Copy Helper (Safely extracts text string without parsing as HTML nodes)
     function copyCodeBlock(elementId, btn) {
       const codeContainer = document.getElementById(elementId);
-      const tempTextArea = document.createElement('textarea');
-      
-      tempTextArea.innerHTML = codeContainer.innerHTML;
-      const textToCopy = tempTextArea.value;
+      const textToCopy = codeContainer.textContent || codeContainer.innerText;
 
       navigator.clipboard.writeText(textToCopy).then(() => {
         btn.innerText = "Copied!";
