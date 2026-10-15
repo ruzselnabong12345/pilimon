@@ -68,9 +68,36 @@
   :focus-visible{ outline: 2px solid var(--accent); outline-offset: 3px; }
 
   .wrap{
-    max-width: 880px;
+    max-width: 1040px; 
     margin: 0 auto;
     padding: 0 28px;
+  }
+
+  /* ---------- Scroll Animations (Dynamic Types) ---------- */
+  .reveal {
+    opacity: 0;
+    transition: opacity 1s cubic-bezier(0.16, 1, 0.3, 1), transform 1s cubic-bezier(0.16, 1, 0.3, 1);
+  }
+  
+  /* Different animation starting states */
+  .reveal-up    { transform: translateY(60px) scale(0.98); }
+  .reveal-down  { transform: translateY(-60px) scale(0.98); } /* The Drop Animation */
+  .reveal-left  { transform: translateX(-60px); }
+  .reveal-right { transform: translateX(60px); }
+  .reveal-zoom  { transform: scale(0.85); }
+
+  /* The active state where all elements return to normal position */
+  .reveal.active {
+    opacity: 1;
+    transform: translate(0, 0) scale(1);
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .reveal {
+      opacity: 1;
+      transform: none;
+      transition: none;
+    }
   }
 
   /* ---------- top bar ---------- */
@@ -96,6 +123,9 @@
   .topnav{ display:flex; gap: 22px; font-size: 14px; align-items: center; }
   .topnav a{ text-decoration:none; color: var(--text-muted); transition: color 0.2s ease;}
   .topnav a:hover{ color: var(--text); }
+  @media (max-width: 768px) {
+    .topnav { gap: 14px; font-size: 13px; flex-wrap: wrap; justify-content: flex-end; }
+  }
 
   /* Theme Toggle Button */
   .theme-toggle {
@@ -129,7 +159,7 @@
     border-radius: 10px;
     background: var(--surface);
     overflow: hidden;
-    transition: background 0.3s ease, border-color 0.3s ease;
+    transition: background 0.3s ease, border-color 0.3s ease, opacity 1s ease, transform 1s ease;
   }
   .ticket-meta{
     display:flex; flex-wrap: wrap; gap: 10px 22px;
@@ -161,7 +191,7 @@
   /* Hero Content Layout */
   .hero-content {
     display: flex;
-    align-items: flex-start; /* Aligns items to the top instead of centering */
+    align-items: flex-start;
     justify-content: space-between;
     gap: 32px;
   }
@@ -185,25 +215,30 @@
     100% { transform: rotate(-6deg) translateY(0px); }
   }
   .swaying-frame {
-    width: 140px;
-    height: 140px;
-    border-radius: 50%; /* Make it circular or change to 16px for a square frame */
+    width: 180px;
+    height: 180px;
+    border-radius: 50%;
     padding: 6px;
     background: var(--surface-2);
     border: 1px solid var(--line);
     box-shadow: 0 12px 24px var(--shadow);
-    /* Noticeable, infinite animation */
     animation: sway 4s ease-in-out infinite; 
     transform-origin: top center;
-    transition: background 0.3s ease, border-color 0.3s ease, box-shadow 0.3s ease;
+    transition: background 0.3s ease, border-color 0.3s ease, box-shadow 0.3s ease, transform 0.2s ease;
     display: block;
-    margin-top: 4px; /* Tiny adjustment to perfectly visually align with the cap-height of the h1 text */
+    margin-top: 4px;
+    cursor: pointer;
+    margin-right: 38px;
+  }
+  .swaying-frame:hover {
+    border-color: var(--accent);
+    box-shadow: 0 12px 24px var(--accent-glow);
   }
   .swaying-frame img {
     width: 100%;
     height: 100%;
     object-fit: cover;
-    border-radius: 50%; /* Match frame border-radius */
+    border-radius: 50%;
     display: block;
   }
 
@@ -273,7 +308,7 @@
     display: flex;
     flex-direction: column;
     justify-content: space-between;
-    transition: background 0.3s ease;
+    transition: background 0.3s ease, opacity 1s ease, transform 1s ease;
   }
   .metric-value{
     font-family: var(--font-display);
@@ -388,12 +423,87 @@
     max-width: 62ch;
   }
 
+  /* ---------- Projects ---------- */
+  .project-grid {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 20px;
+  }
+  @media (min-width: 640px) {
+    .project-grid { grid-template-columns: repeat(2, 1fr); }
+  }
+  .project-card {
+    background: var(--surface);
+    border: 1px solid var(--line);
+    border-radius: 10px;
+    padding: 24px;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    transition: background 0.3s ease, border-color 0.3s ease, transform 0.3s ease, opacity 1s ease;
+    text-decoration: none;
+    color: inherit;
+  }
+  .project-card:hover {
+    border-color: var(--accent);
+    transform: translateY(-3px);
+  }
+  .project-title {
+    font-family: var(--font-display);
+    font-size: 1.15rem;
+    font-weight: 600;
+    color: var(--text);
+    margin: 0;
+  }
+  .project-desc {
+    font-size: 14px;
+    color: var(--text-muted);
+    margin: 0;
+    line-height: 1.6;
+  }
+  .ai-badge {
+    font-family: var(--font-mono);
+    font-size: 11px;
+    color: var(--warn);
+    background: rgba(240, 180, 41, 0.1);
+    padding: 4px 10px;
+    border-radius: 100px;
+    display: inline-block;
+    width: fit-content;
+    border: 1px solid rgba(240, 180, 41, 0.2);
+  }
+  [data-theme="light"] .ai-badge {
+    background: rgba(217, 119, 6, 0.08);
+    border-color: rgba(217, 119, 6, 0.2);
+    color: #D97706;
+  }
+  .project-link {
+    margin-top: auto;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    color: var(--accent);
+    font-weight: 600;
+    font-size: 13.5px;
+    padding-top: 12px;
+    border-top: 1px solid var(--line);
+    transition: border-color 0.3s ease;
+  }
+  .project-card:hover .project-link {
+    border-color: var(--accent-glow-2);
+  }
+  .project-link svg {
+    width: 16px;
+    height: 16px;
+  }
+
   /* ---------- achievements & interactive gallery ---------- */
   .gallery-grid{
     display: grid;
-    grid-template-columns: repeat(2, 1fr);
+    grid-template-columns: repeat(3, 1fr); 
     gap: 20px;
   }
+  @media (max-width: 900px){ .gallery-grid{ grid-template-columns: repeat(2, 1fr); } }
   @media (max-width: 640px){ .gallery-grid{ grid-template-columns: 1fr; } }
 
   .img-card{
@@ -403,12 +513,12 @@
     overflow: hidden;
     display: flex;
     flex-direction: column;
-    transition: transform 0.2s ease, border-color 0.2s ease, background 0.3s ease;
+    transition: transform 0.2s ease, border-color 0.2s ease, background 0.3s ease, opacity 1s ease;
     cursor: pointer;
   }
   .img-card:hover{
     border-color: var(--accent);
-    transform: translateY(-3px);
+    transform: translateY(-3px) scale(1.01);
   }
   .img-container{
     width: 100%;
@@ -555,7 +665,7 @@
     display: flex;
     align-items: center;
     gap: 14px;
-    transition: background 0.3s ease, border-color 0.3s ease;
+    transition: background 0.3s ease, border-color 0.3s ease, opacity 1s ease, transform 1s ease;
   }
   .tech-icon{
     width: 40px; height: 40px;
@@ -590,7 +700,7 @@
     padding: 22px 24px;
     display:flex; justify-content: space-between; align-items:flex-start;
     flex-wrap: wrap; gap: 10px;
-    transition: background 0.3s ease, border-color 0.3s ease;
+    transition: background 0.3s ease, border-color 0.3s ease, opacity 1s ease, transform 1s ease;
   }
   .edu-card h3{
     font-family: var(--font-display);
@@ -666,11 +776,11 @@
     <div class="brand">Nabong's <strong>Portfolio</strong></div>
     <nav class="topnav">
       <a href="#experience">Experience</a>
+      <a href="#projects">Projects</a>
       <a href="#achievements">Achievements</a>
       <a href="#surveys">Surveys</a>
       <a href="#skills">Skills</a>
       <a href="#education">Education</a>
-      <a href="#contact">Contact</a>
       <!-- THEME TOGGLE BUTTON -->
       <button id="theme-toggle" class="theme-toggle" aria-label="Toggle Theme">
         <!-- Sun icon (shows in dark mode) -->
@@ -696,8 +806,8 @@
 
 <div class="wrap">
 
-  <!-- HERO -->
-  <div class="ticket">
+  <!-- HERO (Drops down into view) -->
+  <div class="ticket reveal reveal-down">
     <div class="ticket-meta">
       <span class="status-pill">OPEN TO OPPORTUNITIES</span>
     </div>
@@ -733,7 +843,7 @@
         </div>
         
         <div class="hero-image">
-          <div class="swaying-frame">
+          <div class="swaying-frame" onclick="openLightbox('profile.jpg', 'Ruzsel John Nabong', 'Technical Support Engineer')">
             <img src="profile.jpg" alt="Ruzsel John Nabong">
           </div>
         </div>
@@ -741,30 +851,30 @@
     </div>
   </div>
 
-  <!-- METRICS DASHBOARD -->
+  <!-- METRICS DASHBOARD (Slides up) -->
   <div class="metrics-grid">
-    <div class="metric-card">
+    <div class="metric-card reveal reveal-up">
       <div>
         <div class="metric-value">95%+</div>
         <div class="metric-label">CSAT, rolling average</div>
       </div>
       <span class="metric-status">nominal</span>
     </div>
-    <div class="metric-card">
+    <div class="metric-card reveal reveal-up" style="transition-delay: 0.1s;">
       <div>
         <div class="metric-value">30–50</div>
         <div class="metric-label">Cases resolved / week</div>
       </div>
       <span class="metric-status">nominal</span>
     </div>
-    <div class="metric-card">
+    <div class="metric-card reveal reveal-up" style="transition-delay: 0.2s;">
       <div>
         <div class="metric-value">3+ yrs</div>
         <div class="metric-label">In production support</div>
       </div>
       <span class="metric-status">nominal</span>
     </div>
-    <div class="metric-card">
+    <div class="metric-card reveal reveal-up" style="transition-delay: 0.3s;">
       <div>
         <div class="metric-value">4</div>
         <div class="metric-label">Platforms supported</div>
@@ -775,15 +885,15 @@
 
   <!-- EXPERIENCE -->
   <section id="experience">
-    <div class="section-head">
+    <!-- Slides in from the left -->
+    <div class="section-head reveal reveal-left">
       <span class="index">01</span>
       <h2>Experience</h2>
       <span class="rule"></span>
     </div>
 
     <div class="timeline">
-
-      <div class="entry current">
+      <div class="entry current reveal reveal-left">
         <div class="entry-head">
           <h3>Yotpo — Enterprise Support</h3>
           <span class="entry-date">2026 — Present</span>
@@ -793,7 +903,7 @@
         third-party integrations, working directly with Engineering on escalations through to resolution.</p>
       </div>
 
-      <div class="entry">
+      <div class="entry reveal reveal-left">
         <div class="entry-head">
           <h3>Yotpo — Premium Support</h3>
           <span class="entry-date">2024 — 2026</span>
@@ -803,7 +913,7 @@
         integrations, collaborating with Engineering on escalation paths.</p>
       </div>
 
-      <div class="entry">
+      <div class="entry reveal reveal-left">
         <div class="entry-head">
           <h3>Yotpo — Growth Support</h3>
           <span class="entry-date">2023 — 2024</span>
@@ -812,7 +922,7 @@
         and integrations, working closely with Engineering on escalations and resolutions.</p>
       </div>
 
-      <div class="entry">
+      <div class="entry reveal reveal-left">
         <div class="entry-head">
           <h3>SHS Teacher / IT Officer</h3>
           <span class="entry-date">2022 — 2023</span>
@@ -821,28 +931,66 @@
         computers, resolved hardware issues, and designed certificates.</p>
       </div>
 
-      <div class="entry">
+      <div class="entry reveal reveal-left">
         <div class="entry-head">
           <h3>Cynet Virtual Advantage — Call Center Agent</h3>
           <span class="entry-date">2022</span>
         </div>
         <p>Worked an outbound insurance account, guiding customers through policy questions over the phone.</p>
       </div>
+    </div>
+  </section>
+
+  <!-- PROJECTS & TOOLS -->
+  <section id="projects">
+    <!-- Slides in from the right -->
+    <div class="section-head reveal reveal-right">
+      <span class="index">02</span>
+      <h2>Projects & Tools</h2>
+      <span class="rule"></span>
+    </div>
+
+    <div class="project-grid">
+      <!-- Slides up -->
+      <a href="https://ruzselnabong12345.github.io/pilimon/Yotpo.html" target="_blank" rel="noopener" class="project-card reveal reveal-up">
+        <span class="ai-badge">✦ AI-Assisted Development</span>
+        <h3 class="project-title">Yotpo API Web Interface</h3>
+        <p class="project-desc">
+          A simplified web-based interface I created for our APIs. The goal was to make our APIs easier for my colleagues to understand and use without having to work directly with more complicated API requests. Developed with the help of AI tools such as Claude, Gemini, and ChatGPT to build practical web-based solutions and optimize my development workflow.
+        </p>
+        <span class="project-link">
+          Visit Application 
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>
+        </span>
+      </a>
+
+      <a href="https://barangaypasodeblas.ct.ws/" target="_blank" rel="noopener" class="project-card reveal reveal-up" style="transition-delay: 0.1s;">
+        <span class="ai-badge">✦ AI-Assisted Development</span>
+        <h3 class="project-title">Barangay Paso de Blas Portal</h3>
+        <p class="project-desc">
+          A fully web-based portal developed for Barangay Paso de Blas, Valenzuela. This website serves the local community by providing streamlined access to barangay information and digital services. Similarly, this project was developed faster and more effectively by integrating AI assistance into the building process.
+        </p>
+        <span class="project-link">
+          Visit Website 
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>
+        </span>
+      </a>
 
     </div>
   </section>
 
   <!-- ACHIEVEMENTS -->
   <section id="achievements">
-    <div class="section-head">
-      <span class="index">02</span>
+    <!-- Slides in from the left -->
+    <div class="section-head reveal reveal-left">
+      <span class="index">03</span>
       <h2>Achievements & Recognitions</h2>
       <span class="rule"></span>
     </div>
 
     <div class="gallery-grid">
-
-      <div class="img-card" onclick="openLightbox('promoted.jpg', 'UGC T1 Enterprise Promotion', 'Official milestone banner celebrating promotion to the Enterprise Support Tier.')">
+      <!-- Zoom in animations for images -->
+      <div class="img-card reveal reveal-zoom" onclick="openLightbox('promoted.jpg', 'UGC T1 Enterprise Promotion', 'Official milestone banner celebrating promotion to the Enterprise Support Tier.')">
         <div class="img-container">
           <img src="promoted.jpg" alt="Promotion Banner to Enterprise Support">
           <span class="zoom-badge">Click to enlarge ↗</span>
@@ -853,7 +1001,7 @@
         </div>
       </div>
 
-      <div class="img-card" onclick="openLightbox('promoted2.jpg', 'Enterprise Promotion Announcement', 'Company-wide recognition highlighting dedication, resilience, and technical excellence.')">
+      <div class="img-card reveal reveal-zoom" style="transition-delay: 0.1s;" onclick="openLightbox('promoted2.jpg', 'Enterprise Promotion Announcement', 'Company-wide recognition highlighting dedication, resilience, and technical excellence.')">
         <div class="img-container">
           <img src="promoted2.jpg" alt="Company Announcement of Promotion">
           <span class="zoom-badge">Click to enlarge ↗</span>
@@ -864,7 +1012,7 @@
         </div>
       </div>
 
-      <div class="img-card" onclick="openLightbox('top2.jpg', 'March Superstar Spotlight', 'Ranked top performer for 6 consecutive months with 12 five-star Shopify reviews in a single month.')">
+      <div class="img-card reveal reveal-zoom" style="transition-delay: 0.2s;" onclick="openLightbox('top2.jpg', 'March Superstar Spotlight', 'Ranked top performer for 6 consecutive months with 12 five-star Shopify reviews in a single month.')">
         <div class="img-container">
           <img src="top2.jpg" alt="March Superstar Recognition Banner">
           <span class="zoom-badge">Click to enlarge ↗</span>
@@ -875,7 +1023,7 @@
         </div>
       </div>
 
-      <div class="img-card" onclick="openLightbox('top.png', 'Most Shopify Surveys Award', 'Kudos award for earning the most positive Shopify customer survey submissions in October.')">
+      <div class="img-card reveal reveal-zoom" onclick="openLightbox('top.png', 'Most Shopify Surveys Award', 'Kudos award for earning the most positive Shopify customer survey submissions in October.')">
         <div class="img-container">
           <img src="top.png" alt="Most Shopify Surveys Award">
           <span class="zoom-badge">Click to enlarge ↗</span>
@@ -886,7 +1034,7 @@
         </div>
       </div>
 
-      <div class="img-card" onclick="openLightbox('review5.jpg', 'Top Performer Spotlight', 'Recognized for outstanding ownership, reliability, and staying composed under pressure.')">
+      <div class="img-card reveal reveal-zoom" style="transition-delay: 0.1s;" onclick="openLightbox('review5.jpg', 'Top Performer Spotlight', 'Recognized for outstanding ownership, reliability, and staying composed under pressure.')">
         <div class="img-container">
           <img src="review5.jpg" alt="Top Performers Spotlight Recognition">
           <span class="zoom-badge">Click to enlarge ↗</span>
@@ -902,15 +1050,16 @@
 
   <!-- CUSTOMER SURVEYS & REVIEWS -->
   <section id="surveys">
-    <div class="section-head">
-      <span class="index">03</span>
+    <!-- Slides in from the right -->
+    <div class="section-head reveal reveal-right">
+      <span class="index">04</span>
       <h2>Customer Surveys & Reviews</h2>
       <span class="rule"></span>
     </div>
 
     <div class="gallery-grid">
 
-      <div class="img-card" onclick="openLightbox('review7.jpg', '5-Star App Review — Vego Garden', '&quot;Best support representative I\'ve interacted with... took the initiative to offer a call to resolve the issue.&quot;')">
+      <div class="img-card reveal reveal-zoom" onclick="openLightbox('review7.jpg', '5-Star App Review — Vego Garden', '&quot;Best support representative I\'ve interacted with... took the initiative to offer a call to resolve the issue.&quot;')">
         <div class="img-container">
           <img src="review7.jpg" alt="Vego Garden 5-Star Review">
           <span class="zoom-badge">Click to enlarge ↗</span>
@@ -921,7 +1070,7 @@
         </div>
       </div>
 
-      <div class="img-card" onclick="openLightbox('reveiw2.jpg', 'Screen-Share Resolution Survey', 'Resolved issue via text & screen-share session despite merchant having no mic or camera.')">
+      <div class="img-card reveal reveal-zoom" style="transition-delay: 0.1s;" onclick="openLightbox('reveiw2.jpg', 'Screen-Share Resolution Survey', 'Resolved issue via text & screen-share session despite merchant having no mic or camera.')">
         <div class="img-container">
           <img src="reveiw2.jpg" alt="5-Star Screen Share Session Review">
           <span class="zoom-badge">Click to enlarge ↗</span>
@@ -932,7 +1081,7 @@
         </div>
       </div>
 
-      <div class="img-card" onclick="openLightbox('review6.jpg', 'US & UK Syndication Fix', 'Unblocked review syndication across multi-regional merchant sites with clear technical communication.')">
+      <div class="img-card reveal reveal-zoom" style="transition-delay: 0.2s;" onclick="openLightbox('review6.jpg', 'US & UK Syndication Fix', 'Unblocked review syndication across multi-regional merchant sites with clear technical communication.')">
         <div class="img-container">
           <img src="review6.jpg" alt="Syndication Issue Resolution Feedback">
           <span class="zoom-badge">Click to enlarge ↗</span>
@@ -943,7 +1092,7 @@
         </div>
       </div>
 
-      <div class="img-card" onclick="openLightbox('review8.jpg', 'WooCommerce Widget Integration', '&quot;Resolved the issue quickly and effortlessly... jumped on a call to walk me through everything. A+.&quot;')">
+      <div class="img-card reveal reveal-zoom" onclick="openLightbox('review8.jpg', 'WooCommerce Widget Integration', '&quot;Resolved the issue quickly and effortlessly... jumped on a call to walk me through everything. A+.&quot;')">
         <div class="img-container">
           <img src="review8.jpg" alt="WooCommerce Review Widget Integration">
           <span class="zoom-badge">Click to enlarge ↗</span>
@@ -954,7 +1103,7 @@
         </div>
       </div>
 
-      <div class="img-card" onclick="openLightbox('review1.jpg', 'Enterprise Case Survey & Management Shoutout', 'Direct positive survey score praised by Director of Global Support and Team Leaders.')">
+      <div class="img-card reveal reveal-zoom" style="transition-delay: 0.1s;" onclick="openLightbox('review1.jpg', 'Enterprise Case Survey & Management Shoutout', 'Direct positive survey score praised by Director of Global Support and Team Leaders.')">
         <div class="img-container">
           <img src="review1.jpg" alt="Enterprise Survey Case Feedback">
           <span class="zoom-badge">Click to enlarge ↗</span>
@@ -965,7 +1114,7 @@
         </div>
       </div>
 
-      <div class="img-card" onclick="openLightbox('reveiw3.jpg', 'Syndication Troubleshoot Feedback', '&quot;Ruzsel was amazing! He took time to troubleshoot our syndication issues. Highly recommend!&quot;')">
+      <div class="img-card reveal reveal-zoom" style="transition-delay: 0.2s;" onclick="openLightbox('reveiw3.jpg', 'Syndication Troubleshoot Feedback', '&quot;Ruzsel was amazing! He took time to troubleshoot our syndication issues. Highly recommend!&quot;')">
         <div class="img-container">
           <img src="reveiw3.jpg" alt="Shopify App Store Syndication Review">
           <span class="zoom-badge">Click to enlarge ↗</span>
@@ -976,7 +1125,7 @@
         </div>
       </div>
 
-      <div class="img-card" onclick="openLightbox('review4.jpg', 'Website Integration Advice', '&quot;Provided helpful tips on how to integrate YOTPO reviews more onto our website!&quot;')">
+      <div class="img-card reveal reveal-zoom" onclick="openLightbox('review4.jpg', 'Website Integration Advice', '&quot;Provided helpful tips on how to integrate YOTPO reviews more onto our website!&quot;')">
         <div class="img-container">
           <img src="review4.jpg" alt="Yotpo Integration Tip Review">
           <span class="zoom-badge">Click to enlarge ↗</span>
@@ -992,14 +1141,15 @@
 
   <!-- SKILLS & TECH STACK -->
   <section id="skills">
-    <div class="section-head">
-      <span class="index">04</span>
+    <div class="section-head reveal reveal-left">
+      <span class="index">05</span>
       <h2>Skills & Tech Stack</h2>
       <span class="rule"></span>
     </div>
 
+    <!-- Slides up -->
     <div class="tech-grid">
-      <div class="tech-card">
+      <div class="tech-card reveal reveal-up">
         <div class="tech-icon">SQL</div>
         <div class="tech-details">
           <h4>SQL</h4>
@@ -1007,7 +1157,7 @@
         </div>
       </div>
 
-      <div class="tech-card">
+      <div class="tech-card reveal reveal-up" style="transition-delay: 0.1s;">
         <div class="tech-icon">HTML</div>
         <div class="tech-details">
           <h4>HTML</h4>
@@ -1015,7 +1165,7 @@
         </div>
       </div>
 
-      <div class="tech-card">
+      <div class="tech-card reveal reveal-up" style="transition-delay: 0.2s;">
         <div class="tech-icon">CSS</div>
         <div class="tech-details">
           <h4>CSS</h4>
@@ -1023,7 +1173,7 @@
         </div>
       </div>
 
-      <div class="tech-card">
+      <div class="tech-card reveal reveal-up" style="transition-delay: 0.3s;">
         <div class="tech-icon">API</div>
         <div class="tech-details">
           <h4>API</h4>
@@ -1031,7 +1181,7 @@
         </div>
       </div>
 
-      <div class="tech-card">
+      <div class="tech-card reveal reveal-up">
         <div class="tech-icon">SLK</div>
         <div class="tech-details">
           <h4>Slack</h4>
@@ -1039,7 +1189,7 @@
         </div>
       </div>
 
-      <div class="tech-card">
+      <div class="tech-card reveal reveal-up" style="transition-delay: 0.1s;">
         <div class="tech-icon">AWS</div>
         <div class="tech-details">
           <h4>AWS</h4>
@@ -1047,7 +1197,7 @@
         </div>
       </div>
 
-      <div class="tech-card">
+      <div class="tech-card reveal reveal-up" style="transition-delay: 0.2s;">
         <div class="tech-icon">SFDC</div>
         <div class="tech-details">
           <h4>Salesforce</h4>
@@ -1055,7 +1205,7 @@
         </div>
       </div>
 
-      <div class="tech-card">
+      <div class="tech-card reveal reveal-up" style="transition-delay: 0.3s;">
         <div class="tech-icon">JS</div>
         <div class="tech-details">
           <h4>JavaScript</h4>
@@ -1067,12 +1217,12 @@
 
   <!-- EDUCATION -->
   <section id="education">
-    <div class="section-head">
-      <span class="index">05</span>
+    <div class="section-head reveal reveal-right">
+      <span class="index">06</span>
       <h2>Education</h2>
       <span class="rule"></span>
     </div>
-    <div class="edu-card">
+    <div class="edu-card reveal reveal-left">
       <div>
         <h3>Bachelor of Science in Information Technology <span class="degree-badge">College Degree</span></h3>
         <div class="school">Don Honorio Ventura State University</div>
@@ -1082,7 +1232,8 @@
   </section>
 
   <!-- CONTACT / FOOTER -->
-  <footer id="contact">
+  <!-- Slides up -->
+  <footer id="contact" class="reveal reveal-up">
     <div class="cta-row">
       <a class="cta" href="mailto:ruzselnabong0@gmail.com">Send a message</a>
       <a class="cta secondary" href="Ruzsel_Nabong_CV.pdf" download="Ruzsel_Nabong_CV.pdf">Download Curriculum Vitae</a>
@@ -1111,12 +1262,10 @@
   const themeToggleBtn = document.getElementById('theme-toggle');
   const currentTheme = localStorage.getItem('portfolio-theme');
 
-  // Check saved theme on load
   if (currentTheme) {
     document.documentElement.setAttribute('data-theme', currentTheme);
   }
 
-  // Toggle button event
   themeToggleBtn.addEventListener('click', () => {
     let theme = document.documentElement.getAttribute('data-theme');
     if (theme === 'light') {
@@ -1126,6 +1275,30 @@
       document.documentElement.setAttribute('data-theme', 'light');
       localStorage.setItem('portfolio-theme', 'light');
     }
+  });
+
+  // -- SCROLL ANIMATION (INTERSECTION OBSERVER) --
+  // Adjusted threshold so it triggers earlier on scroll up/down
+  const observerOptions = {
+    root: null,
+    rootMargin: '0px',
+    threshold: 0.1 
+  };
+
+  const observer = new IntersectionObserver((entries) => {
+    entries.forEach(entry => {
+      // If it enters the screen, animate in
+      if (entry.isIntersecting) {
+        entry.target.classList.add('active');
+      } else {
+        // If it leaves the screen, remove the class so it can replay when scrolling back
+        entry.target.classList.remove('active');
+      }
+    });
+  }, observerOptions);
+
+  document.querySelectorAll('.reveal').forEach(el => {
+    observer.observe(el);
   });
 
   // -- LIGHTBOX LOGIC --
