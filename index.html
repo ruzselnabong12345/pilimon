@@ -272,6 +272,40 @@
   }
   .swaying-frame.free.grabbing { cursor: grabbing; }
 
+  /* Speech bubble shown when the picture has rolled into the corner */
+  .help-bubble {
+    position: fixed;
+    z-index: 61;
+    padding: 10px 16px;
+    background: var(--surface);
+    color: var(--text);
+    border: 1.5px solid var(--warn);
+    border-radius: 14px;
+    font-family: var(--font-mono);
+    font-size: 13px;
+    font-weight: 600;
+    white-space: nowrap;
+    pointer-events: none;
+    box-shadow: 0 8px 20px var(--shadow);
+    opacity: 0;
+    transform: translateY(8px) scale(0.8);
+    transform-origin: bottom center;
+    transition: opacity .25s ease, transform .35s cubic-bezier(.34,1.56,.64,1);
+  }
+  .help-bubble.show { opacity: 1; transform: translateY(0) scale(1); }
+  .help-bubble::after {
+    content: '';
+    position: absolute;
+    bottom: -7px;
+    left: var(--tail, 50%);
+    width: 12px; height: 12px;
+    margin-left: -6px;
+    background: var(--surface);
+    border-right: 1.5px solid var(--warn);
+    border-bottom: 1.5px solid var(--warn);
+    transform: rotate(45deg);
+  }
+
   .role{
     font-family: var(--font-display);
     color: var(--accent);
@@ -1256,6 +1290,9 @@
 
 </div>
 
+<!-- SPEECH BUBBLE (shown above the fallen profile picture) -->
+<div id="help-bubble" class="help-bubble" aria-hidden="true">Please help me!</div>
+
 <!-- LIGHTBOX -->
 <div id="lightbox" class="lightbox-modal" onclick="closeLightbox(event)">
   <div class="lightbox-content">
@@ -1301,6 +1338,8 @@
     let x = 0, y = 0, vx = 0, vy = 0, state = 'idle', raf = 0, last = 0;
     let offX = 0, offY = 0, lastMove = 0, moved = false;
 
+    const bubble = document.getElementById('help-bubble');
+
     const bounds = () => ({ maxX: innerWidth - SIZE - PAD, maxY: innerHeight - SIZE - PAD });
     const clamp = (v, lo, hi) => Math.min(Math.max(v, lo), hi);
 
@@ -1321,6 +1360,18 @@
       if (state === 'done' && !moved) openLightbox('profile.jpg', 'Ruzsel John Nabong', 'Technical Support Engineer');
     });
 
+    function positionBubble() {
+      if (!bubble) return;
+      const w = bubble.offsetWidth, h = bubble.offsetHeight;
+      const cx = x + SIZE / 2;
+      const left = clamp(cx - w / 2, PAD, innerWidth - w - PAD);
+      bubble.style.left = left + 'px';
+      bubble.style.top = Math.max(PAD, y - h - 14) + 'px';
+      bubble.style.setProperty('--tail', (cx - left) + 'px');
+    }
+    function showBubble() { if (!bubble) return; positionBubble(); bubble.classList.add('show'); }
+    function hideBubble() { if (bubble) bubble.classList.remove('show'); }
+
     function start() {
       const r = frame.getBoundingClientRect();
       x = r.left; y = r.top;
@@ -1329,7 +1380,7 @@
       slot.classList.add('dropped');
       place();
       const b = bounds();
-      if (reduce) { x = b.maxX; y = b.maxY; place(); state = 'dropped'; return; }
+      if (reduce) { x = b.maxX; y = b.maxY; place(); state = 'dropped'; showBubble(); return; }
       vx = 520; vy = -250;
       state = 'fall'; last = performance.now();
       raf = requestAnimationFrame(step);
@@ -1352,7 +1403,7 @@
       place();
 
       if (y >= b.maxY - 0.5 && x >= b.maxX - 0.5 && Math.abs(vy) < 60) {
-        vx = vy = 0; state = 'dropped'; return; // reached the corner
+        vx = vy = 0; state = 'dropped'; showBubble(); return; // reached the corner
       }
       raf = requestAnimationFrame(step);
     }
@@ -1360,6 +1411,7 @@
     frame.addEventListener('pointerdown', e => {
       if (state !== 'fall' && state !== 'dropped') return;
       cancelAnimationFrame(raf);
+      hideBubble();
       state = 'drag'; moved = false; vx = vy = 0;
       offX = e.clientX - x; offY = e.clientY - y; lastMove = e.timeStamp;
       frame.setPointerCapture(e.pointerId);
@@ -1392,6 +1444,7 @@
 
     function snapHome(home) {
       state = 'snap';
+      hideBubble();
       frame.style.transition = 'left .35s cubic-bezier(.34,1.56,.64,1), top .35s cubic-bezier(.34,1.56,.64,1), transform .35s ease';
       x = home.left; y = home.top + 4;
       frame.style.left = x + 'px';
@@ -1409,7 +1462,7 @@
 
     window.addEventListener('resize', () => {
       if (state !== 'dropped') return;
-      const b = bounds(); x = b.maxX; y = b.maxY; place();
+      const b = bounds(); x = b.maxX; y = b.maxY; place(); positionBubble();
     });
 
     setTimeout(start, 900);
