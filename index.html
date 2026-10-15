@@ -5,7 +5,15 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Ruzsel John Nabong — Technical Support Engineer</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+<script>
+  // Apply saved theme before first paint (prevents a dark flash in light mode)
+  try {
+    var savedTheme = localStorage.getItem('portfolio-theme');
+    if (savedTheme) document.documentElement.setAttribute('data-theme', savedTheme);
+  } catch (e) {}
+</script>
 <style>
   :root {
     /* Dark Mode (Default) */
@@ -40,7 +48,7 @@
     --line: #E5E7EB;
     --text: #111827;
     --text-muted: #6B7280;
-    --accent: #0D9488; 
+    --accent: #0D9488;
     --accent-dim: #99F6E4;
     --warn: #D97706;
     --topbar-bg: rgba(255, 255, 255, 0.9);
@@ -67,35 +75,31 @@
   a{ color: inherit; }
   :focus-visible{ outline: 2px solid var(--accent); outline-offset: 3px; }
 
+  /* Scroll lock while the profile picture is "lost" */
+  html.locked, html.locked body { overflow: hidden; height: 100%; }
+
   .wrap{
-    max-width: 1040px; 
+    max-width: 1040px;
     margin: 0 auto;
     padding: 0 28px;
   }
 
-  /* ---------- Scroll Animations (Dynamic Types) ---------- */
+  /* ---------- Scroll Animations ---------- */
   .reveal {
     opacity: 0;
     transition: opacity 1s cubic-bezier(0.16, 1, 0.3, 1), transform 1s cubic-bezier(0.16, 1, 0.3, 1);
   }
-  
   .reveal-up    { transform: translateY(60px) scale(0.98); }
   .reveal-down  { transform: translateY(-60px) scale(0.98); }
   .reveal-left  { transform: translateX(-60px); }
   .reveal-right { transform: translateX(60px); }
   .reveal-zoom  { transform: scale(0.85); }
-
   .reveal.active {
     opacity: 1;
     transform: translate(0, 0) scale(1);
   }
-
   @media (prefers-reduced-motion: reduce) {
-    .reveal {
-      opacity: 1;
-      transform: none;
-      transition: none;
-    }
+    .reveal { opacity: 1; transform: none; transition: none; }
   }
 
   /* ---------- top bar ---------- */
@@ -122,7 +126,6 @@
   .topnav a{ text-decoration:none; color: var(--text-muted); transition: color 0.2s ease;}
   .topnav a:hover{ color: var(--text); }
 
-  /* Theme Toggle Button */
   .theme-toggle {
     background: none;
     border: none;
@@ -135,13 +138,8 @@
     transition: color 0.2s ease;
     margin-left: 8px;
   }
-  .theme-toggle:hover {
-    color: var(--text);
-  }
-  .theme-toggle svg {
-    width: 18px;
-    height: 18px;
-  }
+  .theme-toggle:hover { color: var(--text); }
+  .theme-toggle svg { width: 18px; height: 18px; }
   :root .sun-icon { display: block; }
   :root .moon-icon { display: none; }
   [data-theme="light"] .sun-icon { display: none; }
@@ -182,89 +180,54 @@
   }
 
   .ticket-body{ padding: 36px 22px 32px; }
-  
-  /* Hero Content Layout */
+
   .hero-content {
     display: flex;
     align-items: flex-start;
     justify-content: space-between;
     gap: 32px;
   }
-  .hero-text {
-    flex: 1;
-  }
+  .hero-text { flex: 1; }
   .hero-image {
     flex-shrink: 0;
-    margin-right: 38px; /* Added desktop margin */
+    margin-right: 38px;
   }
 
-  /* ---------- Interactive Hanging Name ---------- */
-  .name-wrapper {
-    position: relative;
-    display: inline-block;
-    margin: 0 0 12px;
-  }
-  h1.interactive-name {
+  /* ---------- Name ---------- */
+  h1.hero-name {
     font-family: var(--font-display);
     font-size: clamp(2.1rem, 5vw, 3rem);
     line-height: 1.08;
     font-weight: 700;
-    margin: 0;
-    transform-origin: top left;
-    user-select: none;
-    -webkit-user-select: none;
-    touch-action: none;
+    margin: 0 0 12px;
+  }
+
+  /* ---------- Profile picture: slot + swaying frame + falling state ---------- */
+  .profile-slot {
     position: relative;
-    z-index: 2;
-    /* Starts straight */
-    transform: rotate(0deg);
+    width: 180px;
+    height: 184px;
+    flex-shrink: 0;
   }
-  /* Hanging State added via JS */
-  h1.interactive-name.hanging {
-    cursor: grab;
-  }
-  h1.interactive-name.hanging:active {
-    cursor: grabbing;
-  }
-  h1.interactive-name.fixed {
-    cursor: default;
-  }
-  
-  /* Guide/Tooltip Tool placed on the right side */
-  .drag-guide {
+  .put-back {
     position: absolute;
-    left: calc(100% + 16px);
-    top: 50%;
-    transform: translateY(-50%);
+    inset: 4px 0 0 0;
+    border: 2px dashed var(--warn);
+    border-radius: 50%;
+    display: none;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    padding: 18px;
     font-family: var(--font-mono);
     font-size: 13px;
     font-weight: 600;
     color: var(--warn);
-    display: flex;
-    align-items: center;
-    gap: 6px;
-    opacity: 0;
-    pointer-events: none;
-    transition: opacity 0.3s ease;
-    white-space: nowrap;
-    z-index: 1;
+    animation: pulse-ring 1.6s ease-in-out infinite;
   }
-  [data-theme="light"] .drag-guide {
-    color: #D97706;
-  }
-  
-  /* Show Guide ONLY when name is hanging */
-  h1.interactive-name.hanging ~ .drag-guide {
-    opacity: 1;
-    animation: pulse-guide 1.5s infinite;
-  }
-  
-  @keyframes pulse-guide {
-    0%, 100% { transform: translateY(-50%); }
-    50% { transform: translateY(calc(-50% - 6px)); }
-  }
-  
-  /* Swaying Profile Picture Frame */
+  .profile-slot.dropped .put-back { display: flex; }
+  @keyframes pulse-ring { 50% { transform: scale(1.04); opacity: .75; } }
+
   @keyframes sway {
     0% { transform: rotate(-6deg) translateY(0px); }
     50% { transform: rotate(6deg) translateY(-10px); }
@@ -278,7 +241,7 @@
     background: var(--surface-2);
     border: 1px solid var(--line);
     box-shadow: 0 12px 24px var(--shadow);
-    animation: sway 4s ease-in-out infinite; 
+    animation: sway 4s ease-in-out infinite;
     transform-origin: top center;
     transition: background 0.3s ease, border-color 0.3s ease, box-shadow 0.3s ease, transform 0.2s ease;
     display: block;
@@ -295,7 +258,19 @@
     object-fit: cover;
     border-radius: 50%;
     display: block;
+    user-select: none;
+    -webkit-user-drag: none;
   }
+  .swaying-frame.free {
+    position: fixed;
+    margin: 0;
+    animation: none;
+    z-index: 60;
+    touch-action: none;
+    cursor: grab;
+    transform-origin: center center;
+  }
+  .swaying-frame.free.grabbing { cursor: grabbing; }
 
   .role{
     font-family: var(--font-display);
@@ -386,7 +361,7 @@
   }
 
   /* ---------- section headings ---------- */
-  section{ margin-top: 64px; }
+  section{ margin-top: 64px; scroll-margin-top: 90px; }
   .section-head{
     display:flex; align-items: baseline; gap: 12px;
     margin-bottom: 26px;
@@ -536,18 +511,13 @@
     border-top: 1px solid var(--line);
     transition: border-color 0.3s ease;
   }
-  .project-card:hover .project-link {
-    border-color: var(--accent-glow-2);
-  }
-  .project-link svg {
-    width: 16px;
-    height: 16px;
-  }
+  .project-card:hover .project-link { border-color: var(--accent-glow-2); }
+  .project-link svg { width: 16px; height: 16px; }
 
-  /* ---------- achievements & interactive gallery ---------- */
+  /* ---------- achievements & gallery ---------- */
   .gallery-grid{
     display: grid;
-    grid-template-columns: repeat(3, 1fr); 
+    grid-template-columns: repeat(3, 1fr);
     gap: 20px;
   }
   @media (max-width: 900px){ .gallery-grid{ grid-template-columns: repeat(2, 1fr); } }
@@ -601,9 +571,7 @@
     pointer-events: none;
     backdrop-filter: blur(4px);
   }
-  .img-info{
-    padding: 16px 18px;
-  }
+  .img-info{ padding: 16px 18px; }
   .img-info h3{
     font-family: var(--font-display);
     font-size: 1rem;
@@ -616,7 +584,7 @@
     color: var(--text-muted);
   }
 
-  /* ---------- full-screen lightbox modal ---------- */
+  /* ---------- lightbox ---------- */
   .lightbox-modal{
     position: fixed;
     top: 0; left: 0; width: 100%; height: 100%;
@@ -644,9 +612,7 @@
     position: relative;
     box-shadow: 0 20px 40px rgba(0,0,0,0.6);
   }
-  [data-theme="light"] .lightbox-content {
-    box-shadow: 0 20px 40px rgba(0,0,0,0.1);
-  }
+  [data-theme="light"] .lightbox-content { box-shadow: 0 20px 40px rgba(0,0,0,0.1); }
   .lightbox-body{
     max-height: 70vh;
     overflow-y: auto;
@@ -697,7 +663,7 @@
     border-color: var(--accent);
   }
 
-  /* ---------- tech stack grid ---------- */
+  /* ---------- tech stack ---------- */
   .tech-grid{
     display: grid;
     grid-template-columns: repeat(4, 1fr);
@@ -772,7 +738,7 @@
     vertical-align: middle;
   }
 
-  /* ---------- footer / close ticket ---------- */
+  /* ---------- footer ---------- */
   footer{
     margin-top: 70px;
     padding: 40px 0 60px;
@@ -814,78 +780,29 @@
     color: var(--text-muted);
   }
 
-  /* ========================================================================= */
-  /* RESPONSIVE MOBILE ADJUSTMENTS                                             */
-  /* ========================================================================= */
+  /* ---------- responsive ---------- */
   @media (max-width: 768px) {
-    .topnav { 
-      justify-content: center; 
-      gap: 12px 16px; 
-      flex-wrap: wrap; 
-    }
-    .topbar-inner { 
-      flex-direction: column; 
-      gap: 14px; 
-      text-align: center; 
-    }
+    .topnav { justify-content: center; gap: 12px 16px; flex-wrap: wrap; }
+    .topbar-inner { flex-direction: column; gap: 14px; text-align: center; }
   }
 
   @media (max-width: 640px) {
-    /* Hero Center Align */
     .hero-content {
       flex-direction: column-reverse;
       align-items: center;
       text-align: center;
     }
-    .hero-image {
-      margin-right: 0; /* Reset desktop margin for proper centering on mobile */
-    }
-    .contact-row {
-      justify-content: center;
-    }
-    .ticket-meta {
-      justify-content: center;
-    }
-    
-    /* Name & Tooltip Mobile Centering */
-    h1.interactive-name {
-      transform-origin: center top;
-    }
-    .drag-guide {
-      left: auto;
-      right: -10px;
-      top: 100%;
-      transform: translateY(0);
-    }
-    @keyframes pulse-guide {
-      0%, 100% { transform: translateY(0); }
-      50% { transform: translateY(-5px); }
-    }
+    .hero-image { margin-right: 0; }
+    .contact-row { justify-content: center; }
+    .ticket-meta { justify-content: center; }
 
-    /* Metric Grid Center Align */
-    .metrics-grid { 
-      grid-template-columns: repeat(2, 1fr); 
-    }
-    .metric-card {
-      align-items: center;
-      text-align: center;
-    }
+    .metrics-grid { grid-template-columns: repeat(2, 1fr); }
+    .metric-card { align-items: center; text-align: center; }
 
-    /* Project / Skills / Education Center Align */
-    .project-card {
-      align-items: center;
-      text-align: center;
-    }
-    .ai-badge {
-      margin: 0 auto;
-    }
-    .project-link {
-      justify-content: center;
-      width: 100%;
-    }
-    .tech-grid { 
-      grid-template-columns: repeat(2, 1fr); 
-    }
+    .project-card { align-items: center; text-align: center; }
+    .ai-badge { margin: 0 auto; }
+    .project-link { justify-content: center; width: 100%; }
+    .tech-grid { grid-template-columns: repeat(2, 1fr); }
     .tech-card {
       flex-direction: column;
       text-align: center;
@@ -897,17 +814,11 @@
       align-items: center;
       text-align: center;
     }
-    .degree-badge {
-      margin: 6px 0 0 0;
-      display: inline-block;
-    }
+    .degree-badge { margin: 6px 0 0 0; display: inline-block; }
   }
 
   @media (max-width: 480px) {
-    .topnav {
-      font-size: 13px;
-      gap: 10px 12px;
-    }
+    .topnav { font-size: 13px; gap: 10px 12px; }
   }
 </style>
 </head>
@@ -923,9 +834,7 @@
       <a href="#surveys">Surveys</a>
       <a href="#skills">Skills</a>
       <a href="#education">Education</a>
-      <!-- THEME TOGGLE BUTTON -->
       <button id="theme-toggle" class="theme-toggle" aria-label="Toggle Theme">
-        <!-- Sun icon (shows in dark mode) -->
         <svg class="sun-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
           <circle cx="12" cy="12" r="5"></circle>
           <line x1="12" y1="1" x2="12" y2="3"></line>
@@ -937,7 +846,6 @@
           <line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line>
           <line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line>
         </svg>
-        <!-- Moon icon (shows in light mode) -->
         <svg class="moon-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
           <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path>
         </svg>
@@ -948,7 +856,7 @@
 
 <div class="wrap">
 
-  <!-- HERO (Drops down into view) -->
+  <!-- HERO -->
   <div class="ticket reveal reveal-down">
     <div class="ticket-meta">
       <span class="status-pill">OPEN TO OPPORTUNITIES</span>
@@ -956,15 +864,8 @@
     <div class="ticket-body">
       <div class="hero-content">
         <div class="hero-text">
-          
-          <!-- HANGING INTERACTIVE NAME -->
-          <div class="name-wrapper">
-            <h1 id="interactive-name" class="interactive-name">Ruzsel John Nabong</h1>
-            <div id="drag-guide" class="drag-guide">
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="14" height="14"><path d="M12 19V5M5 12l7-7 7 7"/></svg>
-              Drag up to fix!
-            </div>
-          </div>
+
+          <h1 class="hero-name">Ruzsel John Nabong</h1>
 
           <p class="role">Technical Support Engineer</p>
           <p class="summary">
@@ -992,17 +893,21 @@
             </a>
           </div>
         </div>
-        
+
+        <!-- PROFILE PICTURE: falls on load, must be dragged back into the dashed slot -->
         <div class="hero-image">
-          <div class="swaying-frame" onclick="openLightbox('profile.jpg', 'Ruzsel John Nabong', 'Technical Support Engineer')">
-            <img src="profile.jpg" alt="Ruzsel John Nabong">
+          <div class="profile-slot" id="profile-slot">
+            <div class="put-back">put me back please</div>
+            <div class="swaying-frame" id="profile-frame">
+              <img src="profile.jpg" alt="Ruzsel John Nabong" draggable="false">
+            </div>
           </div>
         </div>
       </div>
     </div>
   </div>
 
-  <!-- METRICS DASHBOARD (Slides up) -->
+  <!-- METRICS -->
   <div class="metrics-grid">
     <div class="metric-card reveal reveal-up">
       <div>
@@ -1036,7 +941,6 @@
 
   <!-- EXPERIENCE -->
   <section id="experience">
-    <!-- Slides in from the left -->
     <div class="section-head reveal reveal-left">
       <span class="index">01</span>
       <h2>Experience</h2>
@@ -1094,7 +998,6 @@
 
   <!-- PROJECTS & TOOLS -->
   <section id="projects">
-    <!-- Slides in from the right -->
     <div class="section-head reveal reveal-right">
       <span class="index">02</span>
       <h2>Projects & Tools</h2>
@@ -1102,7 +1005,6 @@
     </div>
 
     <div class="project-grid">
-      <!-- Slides up -->
       <a href="https://ruzselnabong12345.github.io/pilimon/Yotpo.html" target="_blank" rel="noopener" class="project-card reveal reveal-up">
         <span class="ai-badge">✦ AI-Assisted Development</span>
         <h3 class="project-title">Yotpo API Web Interface</h3>
@@ -1110,7 +1012,7 @@
           A simplified web-based interface I created for our APIs. The goal was to make our APIs easier for my colleagues to understand and use without having to work directly with more complicated API requests. Developed with the help of AI tools such as Claude, Gemini, and ChatGPT to build practical web-based solutions and optimize my development workflow.
         </p>
         <span class="project-link">
-          Visit Application 
+          Visit Application
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>
         </span>
       </a>
@@ -1122,17 +1024,15 @@
           A fully web-based portal developed for Barangay Paso de Blas, Valenzuela. This website serves the local community by providing streamlined access to barangay information and digital services. Similarly, this project was developed faster and more effectively by integrating AI assistance into the building process.
         </p>
         <span class="project-link">
-          Visit Website 
+          Visit Website
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>
         </span>
       </a>
-
     </div>
   </section>
 
   <!-- ACHIEVEMENTS -->
   <section id="achievements">
-    <!-- Slides in from the left -->
     <div class="section-head reveal reveal-left">
       <span class="index">03</span>
       <h2>Achievements & Recognitions</h2>
@@ -1140,7 +1040,6 @@
     </div>
 
     <div class="gallery-grid">
-      <!-- Zoom in animations for images -->
       <div class="img-card reveal reveal-zoom" onclick="openLightbox('promoted.jpg', 'UGC T1 Enterprise Promotion', 'Official milestone banner celebrating promotion to the Enterprise Support Tier.')">
         <div class="img-container">
           <img src="promoted.jpg" alt="Promotion Banner to Enterprise Support">
@@ -1195,13 +1094,11 @@
           <p>Recognized for outstanding ownership, reliability, and staying composed under pressure.</p>
         </div>
       </div>
-
     </div>
   </section>
 
   <!-- CUSTOMER SURVEYS & REVIEWS -->
   <section id="surveys">
-    <!-- Slides in from the right -->
     <div class="section-head reveal reveal-right">
       <span class="index">04</span>
       <h2>Customer Surveys & Reviews</h2>
@@ -1209,7 +1106,6 @@
     </div>
 
     <div class="gallery-grid">
-
       <div class="img-card reveal reveal-zoom" onclick="openLightbox('review7.jpg', '5-Star App Review — Vego Garden', '&quot;Best support representative I\'ve interacted with... took the initiative to offer a call to resolve the issue.&quot;')">
         <div class="img-container">
           <img src="review7.jpg" alt="Vego Garden 5-Star Review">
@@ -1286,7 +1182,6 @@
           <p>"Provided helpful tips on how to integrate YOTPO reviews more onto our website!"</p>
         </div>
       </div>
-
     </div>
   </section>
 
@@ -1298,70 +1193,38 @@
       <span class="rule"></span>
     </div>
 
-    <!-- Slides up -->
     <div class="tech-grid">
       <div class="tech-card reveal reveal-up">
         <div class="tech-icon">SQL</div>
-        <div class="tech-details">
-          <h4>SQL</h4>
-          <p>Data & queries</p>
-        </div>
+        <div class="tech-details"><h4>SQL</h4><p>Data & queries</p></div>
       </div>
-
       <div class="tech-card reveal reveal-up" style="transition-delay: 0.1s;">
         <div class="tech-icon">HTML</div>
-        <div class="tech-details">
-          <h4>HTML</h4>
-          <p>Frontend</p>
-        </div>
+        <div class="tech-details"><h4>HTML</h4><p>Frontend</p></div>
       </div>
-
       <div class="tech-card reveal reveal-up" style="transition-delay: 0.2s;">
         <div class="tech-icon">CSS</div>
-        <div class="tech-details">
-          <h4>CSS</h4>
-          <p>Frontend</p>
-        </div>
+        <div class="tech-details"><h4>CSS</h4><p>Frontend</p></div>
       </div>
-
       <div class="tech-card reveal reveal-up" style="transition-delay: 0.3s;">
         <div class="tech-icon">API</div>
-        <div class="tech-details">
-          <h4>API</h4>
-          <p>REST & integrations</p>
-        </div>
+        <div class="tech-details"><h4>API</h4><p>REST & integrations</p></div>
       </div>
-
       <div class="tech-card reveal reveal-up">
         <div class="tech-icon">SLK</div>
-        <div class="tech-details">
-          <h4>Slack</h4>
-          <p>Communication</p>
-        </div>
+        <div class="tech-details"><h4>Slack</h4><p>Communication</p></div>
       </div>
-
       <div class="tech-card reveal reveal-up" style="transition-delay: 0.1s;">
         <div class="tech-icon">AWS</div>
-        <div class="tech-details">
-          <h4>AWS</h4>
-          <p>Cloud services</p>
-        </div>
+        <div class="tech-details"><h4>AWS</h4><p>Cloud services</p></div>
       </div>
-
       <div class="tech-card reveal reveal-up" style="transition-delay: 0.2s;">
         <div class="tech-icon">SFDC</div>
-        <div class="tech-details">
-          <h4>Salesforce</h4>
-          <p>CRM & support</p>
-        </div>
+        <div class="tech-details"><h4>Salesforce</h4><p>CRM & support</p></div>
       </div>
-
       <div class="tech-card reveal reveal-up" style="transition-delay: 0.3s;">
         <div class="tech-icon">JS</div>
-        <div class="tech-details">
-          <h4>JavaScript</h4>
-          <p>Frontend scripting</p>
-        </div>
+        <div class="tech-details"><h4>JavaScript</h4><p>Frontend scripting</p></div>
       </div>
     </div>
   </section>
@@ -1382,8 +1245,7 @@
     </div>
   </section>
 
-  <!-- CONTACT / FOOTER -->
-  <!-- Slides up -->
+  <!-- FOOTER -->
   <footer id="contact" class="reveal reveal-up">
     <div class="cta-row">
       <a class="cta" href="mailto:ruzselnabong0@gmail.com">Send a message</a>
@@ -1394,7 +1256,7 @@
 
 </div>
 
-<!-- LIGHTBOX MODAL CONTAINER -->
+<!-- LIGHTBOX -->
 <div id="lightbox" class="lightbox-modal" onclick="closeLightbox(event)">
   <div class="lightbox-content">
     <button class="close-btn" onclick="closeLightbox(event)">&times;</button>
@@ -1409,130 +1271,151 @@
 </div>
 
 <script>
-  // -- THEME TOGGLE LOGIC --
+  // -- THEME TOGGLE --
   const themeToggleBtn = document.getElementById('theme-toggle');
-  const currentTheme = localStorage.getItem('portfolio-theme');
-
-  if (currentTheme) {
-    document.documentElement.setAttribute('data-theme', currentTheme);
-  }
-
   themeToggleBtn.addEventListener('click', () => {
-    let theme = document.documentElement.getAttribute('data-theme');
-    if (theme === 'light') {
-      document.documentElement.removeAttribute('data-theme');
-      localStorage.setItem('portfolio-theme', 'dark');
-    } else {
-      document.documentElement.setAttribute('data-theme', 'light');
-      localStorage.setItem('portfolio-theme', 'light');
-    }
+    const isLight = document.documentElement.getAttribute('data-theme') === 'light';
+    if (isLight) document.documentElement.removeAttribute('data-theme');
+    else document.documentElement.setAttribute('data-theme', 'light');
+    try { localStorage.setItem('portfolio-theme', isLight ? 'dark' : 'light'); } catch (e) {}
   });
 
-  // -- SCROLL ANIMATION (INTERSECTION OBSERVER) --
-  const observerOptions = {
-    root: null,
-    rootMargin: '0px',
-    threshold: 0.1 
-  };
-
+  // -- SCROLL ANIMATION --
   const observer = new IntersectionObserver((entries) => {
     entries.forEach(entry => {
-      if (entry.isIntersecting) {
-        entry.target.classList.add('active');
-      } else {
-        entry.target.classList.remove('active');
-      }
+      if (entry.isIntersecting) entry.target.classList.add('active');
+      else entry.target.classList.remove('active');
     });
-  }, observerOptions);
+  }, { root: null, rootMargin: '0px', threshold: 0.1 });
+  document.querySelectorAll('.reveal').forEach(el => observer.observe(el));
 
-  document.querySelectorAll('.reveal').forEach(el => {
-    observer.observe(el);
-  });
+  // -- FALLING PROFILE PICTURE --
+  (function () {
+    const frame = document.getElementById('profile-frame');
+    const slot  = document.getElementById('profile-slot');
+    if (!frame || !slot) return;
 
-  // -- INTERACTIVE HANGING NAME --
-  const nameEl = document.getElementById('interactive-name');
-  const guideEl = document.getElementById('drag-guide');
+    const root = document.documentElement;
+    const SIZE = 180, PAD = 8, G = 1900, BOUNCE = 0.62;
+    const reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    let x = 0, y = 0, vx = 0, vy = 0, state = 'idle', raf = 0, last = 0;
+    let offX = 0, offY = 0, lastMove = 0, moved = false;
 
-  // TRIGGER ANIMATION ON EVERY PAGE LOAD
-  // Wait 1.2s to let the main hero container animate in first, then drop the name
-  setTimeout(() => {
-    
-    // Add the "dropping" animation
-    nameEl.style.transition = 'transform 0.8s cubic-bezier(0.34, 1.56, 0.64, 1)';
-    nameEl.style.transform = 'rotate(16deg)';
-    nameEl.classList.add('hanging'); // Enables cursor & shows tooltip
-    
-    let currentAngle = 16;
-    let isDragging = false;
-    let startY = 0;
-    let startAngle = currentAngle;
+    const bounds = () => ({ maxX: innerWidth - SIZE - PAD, maxY: innerHeight - SIZE - PAD });
+    const clamp = (v, lo, hi) => Math.min(Math.max(v, lo), hi);
 
-    const startDrag = (e) => {
-      if(nameEl.classList.contains('fixed')) return;
-      isDragging = true;
-      nameEl.style.transition = 'none'; 
-      startY = e.type.includes('touch') ? e.touches[0].clientY : e.clientY;
-      startAngle = currentAngle;
-    };
+    function place() {
+      frame.style.left = x + 'px';
+      frame.style.top = y + 'px';
+      frame.style.transform = 'rotate(' + (x * 0.5) + 'deg)';
+    }
 
-    const doDrag = (e) => {
-      if (!isDragging) return;
-      // Prevent default scrolling when trying to pull the sign up on mobile
-      e.preventDefault(); 
-      const currentY = e.type.includes('touch') ? e.touches[0].clientY : e.clientY;
-      const deltaY = currentY - startY;
-      
-      // Moving up decreases the angle toward 0
-      currentAngle = startAngle + (deltaY * 0.15); 
-      
-      // Don't let it swing too far down past 25deg
-      if (currentAngle > 25) currentAngle = 25; 
-      
-      // If straightened perfectly (0 or less)
-      if (currentAngle <= 0) {
-        currentAngle = 0;
-        fixName();
-      } else {
-        nameEl.style.transform = `rotate(${currentAngle}deg)`;
+    // Lock scrolling right away
+    window.scrollTo(0, 0);
+    root.classList.add('locked');
+    document.querySelectorAll('.topnav a').forEach(a =>
+      a.addEventListener('click', e => { if (root.classList.contains('locked')) e.preventDefault(); }));
+
+    // Lightbox on the profile only works once it is back home
+    frame.addEventListener('click', () => {
+      if (state === 'done' && !moved) openLightbox('profile.jpg', 'Ruzsel John Nabong', 'Technical Support Engineer');
+    });
+
+    function start() {
+      const r = frame.getBoundingClientRect();
+      x = r.left; y = r.top;
+      document.body.appendChild(frame); // escapes .ticket's transform/overflow so position:fixed works
+      frame.classList.add('free');
+      slot.classList.add('dropped');
+      place();
+      const b = bounds();
+      if (reduce) { x = b.maxX; y = b.maxY; place(); state = 'dropped'; return; }
+      vx = 520; vy = -250;
+      state = 'fall'; last = performance.now();
+      raf = requestAnimationFrame(step);
+    }
+
+    function step(t) {
+      const dt = Math.min((t - last) / 1000, 0.033); last = t;
+      const b = bounds();
+      if (y >= b.maxY - 0.5 && Math.abs(vy) < 40) vx += 900 * dt; // roll toward the corner
+      vy += G * dt;
+      x += vx * dt; y += vy * dt;
+
+      if (x > b.maxX) { x = b.maxX; vx = -vx * BOUNCE; }
+      if (x < PAD)    { x = PAD;    vx = -vx * BOUNCE; }
+      if (y < PAD)    { y = PAD;    vy = -vy * BOUNCE; }
+      if (y > b.maxY) {
+        y = b.maxY; vy = -vy * BOUNCE; vx *= 0.92;
+        if (Math.abs(vy) < 60) vy = 0;
       }
-    };
+      place();
 
-    const stopDrag = () => {
-      if (!isDragging) return;
-      isDragging = false;
-      // If user let go before fixing it, swing it back!
-      nameEl.style.transition = 'transform 0.6s cubic-bezier(0.34, 1.56, 0.64, 1)';
-      nameEl.style.transform = `rotate(16deg)`;
-      currentAngle = 16;
-    };
+      if (y >= b.maxY - 0.5 && x >= b.maxX - 0.5 && Math.abs(vy) < 60) {
+        vx = vy = 0; state = 'dropped'; return; // reached the corner
+      }
+      raf = requestAnimationFrame(step);
+    }
 
-    const fixName = () => {
-      isDragging = false;
-      // Satisfying snap-into-place transition
-      nameEl.style.transition = 'transform 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275)';
-      nameEl.style.transform = `rotate(0deg)`;
-      nameEl.classList.remove('hanging');
-      nameEl.classList.add('fixed');
-      
-      // Clean up event listeners so it doesn't move anymore
-      window.removeEventListener('mousemove', doDrag);
-      window.removeEventListener('mouseup', stopDrag);
-      window.removeEventListener('touchmove', doDrag);
-      window.removeEventListener('touchend', stopDrag);
-    };
+    frame.addEventListener('pointerdown', e => {
+      if (state !== 'fall' && state !== 'dropped') return;
+      cancelAnimationFrame(raf);
+      state = 'drag'; moved = false; vx = vy = 0;
+      offX = e.clientX - x; offY = e.clientY - y; lastMove = e.timeStamp;
+      frame.setPointerCapture(e.pointerId);
+      frame.classList.add('grabbing');
+      e.preventDefault();
+    });
 
-    // Attach event listeners for mouse and touch
-    nameEl.addEventListener('mousedown', startDrag);
-    window.addEventListener('mousemove', doDrag, { passive: false });
-    window.addEventListener('mouseup', stopDrag);
-    
-    nameEl.addEventListener('touchstart', startDrag, { passive: false });
-    window.addEventListener('touchmove', doDrag, { passive: false });
-    window.addEventListener('touchend', stopDrag);
+    frame.addEventListener('pointermove', e => {
+      if (state !== 'drag') return;
+      const nx = clamp(e.clientX - offX, 0, innerWidth - SIZE);
+      const ny = clamp(e.clientY - offY, 0, innerHeight - SIZE);
+      const dt = Math.max((e.timeStamp - lastMove) / 1000, 0.008);
+      vx = clamp(vx * 0.5 + ((nx - x) / dt) * 0.5, -1500, 1500);
+      vy = clamp(vy * 0.5 + ((ny - y) / dt) * 0.5, -1500, 1500);
+      x = nx; y = ny; lastMove = e.timeStamp; moved = true;
+      place();
+    });
 
-  }, 1200);
+    frame.addEventListener('pointerup', e => {
+      if (state !== 'drag') return;
+      frame.classList.remove('grabbing');
+      if (e.timeStamp - lastMove > 80) vx = vy = 0; // held still before letting go
+      const home = slot.getBoundingClientRect();
+      const dx = (x + SIZE / 2) - (home.left + SIZE / 2);
+      const dy = (y + SIZE / 2) - (home.top + 4 + SIZE / 2);
+      if (Math.hypot(dx, dy) < 70) return snapHome(home);
+      state = 'fall'; last = performance.now(); // wrong spot: it falls again
+      raf = requestAnimationFrame(step);
+    });
 
-  // -- LIGHTBOX LOGIC --
+    function snapHome(home) {
+      state = 'snap';
+      frame.style.transition = 'left .35s cubic-bezier(.34,1.56,.64,1), top .35s cubic-bezier(.34,1.56,.64,1), transform .35s ease';
+      x = home.left; y = home.top + 4;
+      frame.style.left = x + 'px';
+      frame.style.top = y + 'px';
+      frame.style.transform = 'rotate(0deg)';
+      setTimeout(() => {
+        frame.classList.remove('free', 'grabbing');
+        ['left', 'top', 'transition', 'transform'].forEach(p => frame.style.removeProperty(p));
+        slot.appendChild(frame);        // back in its original place
+        slot.classList.remove('dropped');
+        root.classList.remove('locked'); // scrolling unlocked
+        state = 'done';
+      }, 380);
+    }
+
+    window.addEventListener('resize', () => {
+      if (state !== 'dropped') return;
+      const b = bounds(); x = b.maxX; y = b.maxY; place();
+    });
+
+    setTimeout(start, 900);
+  })();
+
+  // -- LIGHTBOX --
   function openLightbox(src, title, desc) {
     const modal = document.getElementById('lightbox');
     document.getElementById('lightbox-img').src = src;
@@ -1544,17 +1427,15 @@
 
   function closeLightbox(e) {
     if (e.target.classList.contains('lightbox-modal') || e.target.classList.contains('close-btn')) {
-      const modal = document.getElementById('lightbox');
-      modal.classList.remove('active');
-      document.body.style.overflow = 'auto';
+      document.getElementById('lightbox').classList.remove('active');
+      document.body.style.overflow = '';
     }
   }
 
-  document.addEventListener('keydown', function(e) {
+  document.addEventListener('keydown', function (e) {
     if (e.key === 'Escape') {
-      const modal = document.getElementById('lightbox');
-      modal.classList.remove('active');
-      document.body.style.overflow = 'auto';
+      document.getElementById('lightbox').classList.remove('active');
+      document.body.style.overflow = '';
     }
   });
 </script>
