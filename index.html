@@ -79,14 +79,12 @@
     transition: opacity 1s cubic-bezier(0.16, 1, 0.3, 1), transform 1s cubic-bezier(0.16, 1, 0.3, 1);
   }
   
-  /* Different animation starting states */
   .reveal-up    { transform: translateY(60px) scale(0.98); }
-  .reveal-down  { transform: translateY(-60px) scale(0.98); } /* The Drop Animation */
+  .reveal-down  { transform: translateY(-60px) scale(0.98); }
   .reveal-left  { transform: translateX(-60px); }
   .reveal-right { transform: translateX(60px); }
   .reveal-zoom  { transform: scale(0.85); }
 
-  /* The active state where all elements return to normal position */
   .reveal.active {
     opacity: 1;
     transform: translate(0, 0) scale(1);
@@ -123,9 +121,6 @@
   .topnav{ display:flex; gap: 22px; font-size: 14px; align-items: center; }
   .topnav a{ text-decoration:none; color: var(--text-muted); transition: color 0.2s ease;}
   .topnav a:hover{ color: var(--text); }
-  @media (max-width: 768px) {
-    .topnav { gap: 14px; font-size: 13px; flex-wrap: wrap; justify-content: flex-end; }
-  }
 
   /* Theme Toggle Button */
   .theme-toggle {
@@ -195,12 +190,6 @@
     justify-content: space-between;
     gap: 32px;
   }
-  @media (max-width: 640px) {
-    .hero-content {
-      flex-direction: column-reverse;
-      align-items: flex-start;
-    }
-  }
   .hero-text {
     flex: 1;
   }
@@ -228,7 +217,6 @@
     display: block;
     margin-top: 4px;
     cursor: pointer;
-    margin-right: 38px;
   }
   .swaying-frame:hover {
     border-color: var(--accent);
@@ -301,7 +289,6 @@
     margin-top: 24px;
     transition: background 0.3s ease, border-color 0.3s ease;
   }
-  @media (max-width: 640px){ .metrics-grid{ grid-template-columns: repeat(2, 1fr); } }
   .metric-card{
     background: var(--surface);
     padding: 20px 18px;
@@ -656,7 +643,6 @@
     grid-template-columns: repeat(4, 1fr);
     gap: 16px;
   }
-  @media (max-width: 768px){ .tech-grid{ grid-template-columns: repeat(2, 1fr); } }
   .tech-card{
     border: 1px solid var(--line);
     border-radius: 10px;
@@ -766,6 +752,76 @@
     margin-top: 22px;
     font-size: 12px;
     color: var(--text-muted);
+  }
+
+  /* ========================================================================= */
+  /* RESPONSIVE MOBILE ADJUSTMENTS (CENTERS CONTENT)                           */
+  /* ========================================================================= */
+  @media (max-width: 768px) {
+    .topnav { 
+      justify-content: center; 
+      gap: 16px; 
+    }
+    .topbar-inner { 
+      flex-direction: column; 
+      gap: 14px; 
+      text-align: center; 
+    }
+  }
+
+  @media (max-width: 640px) {
+    /* Hero Center Align */
+    .hero-content {
+      flex-direction: column-reverse;
+      align-items: center;
+      text-align: center;
+    }
+    .contact-row {
+      justify-content: center;
+    }
+    .ticket-meta {
+      justify-content: center;
+    }
+
+    /* Metric Grid Center Align */
+    .metrics-grid { 
+      grid-template-columns: repeat(2, 1fr); 
+    }
+    .metric-card {
+      align-items: center;
+      text-align: center;
+    }
+
+    /* Project / Skills / Education Center Align */
+    .project-card {
+      align-items: center;
+      text-align: center;
+    }
+    .ai-badge {
+      margin: 0 auto;
+    }
+    .project-link {
+      justify-content: center;
+      width: 100%;
+    }
+    .tech-grid { 
+      grid-template-columns: repeat(2, 1fr); 
+    }
+    .tech-card {
+      flex-direction: column;
+      text-align: center;
+      justify-content: center;
+      gap: 8px;
+    }
+    .edu-card {
+      flex-direction: column;
+      align-items: center;
+      text-align: center;
+    }
+    .degree-badge {
+      margin: 6px 0 0 0;
+      display: inline-block;
+    }
   }
 </style>
 </head>
@@ -1278,7 +1334,6 @@
   });
 
   // -- SCROLL ANIMATION (INTERSECTION OBSERVER) --
-  // Adjusted threshold so it triggers earlier on scroll up/down
   const observerOptions = {
     root: null,
     rootMargin: '0px',
@@ -1287,11 +1342,9 @@
 
   const observer = new IntersectionObserver((entries) => {
     entries.forEach(entry => {
-      // If it enters the screen, animate in
       if (entry.isIntersecting) {
         entry.target.classList.add('active');
       } else {
-        // If it leaves the screen, remove the class so it can replay when scrolling back
         entry.target.classList.remove('active');
       }
     });
