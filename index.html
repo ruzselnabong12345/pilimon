@@ -196,8 +196,74 @@
   .hero-image {
     flex-shrink: 0;
   }
+
+  /* ---------- Interactive Hanging Name ---------- */
+  .name-wrapper {
+    position: relative;
+    display: inline-block;
+    margin: 0 0 12px;
+  }
+  h1.interactive-name {
+    font-family: var(--font-display);
+    font-size: clamp(2.1rem, 5vw, 3rem);
+    line-height: 1.08;
+    font-weight: 700;
+    margin: 0;
+    transform-origin: top left;
+    user-select: none;
+    -webkit-user-select: none;
+    touch-action: none;
+    position: relative;
+    z-index: 2;
+    /* Starts straight */
+    transform: rotate(0deg);
+  }
+  /* Hanging State added via JS */
+  h1.interactive-name.hanging {
+    cursor: grab;
+  }
+  h1.interactive-name.hanging:active {
+    cursor: grabbing;
+  }
+  h1.interactive-name.fixed {
+    cursor: default;
+  }
   
-  /* Swaying Frame */
+  /* Guide/Tooltip Tool */
+  .drag-guide {
+    position: absolute;
+    left: calc(100% + 16px);
+    top: 50%;
+    transform: translateY(-50%);
+    font-family: var(--font-mono);
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--warn);
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.3s ease;
+    white-space: nowrap;
+    z-index: 1;
+  }
+  [data-theme="light"] .drag-guide {
+    color: #D97706;
+  }
+  
+  /* Show Guide ONLY when name is hanging */
+  h1.interactive-name.hanging ~ .drag-guide {
+    opacity: 1;
+    animation: pulse-guide 1.5s infinite;
+  }
+  
+  @keyframes pulse-guide {
+    0%, 100% { transform: translateY(-50%); }
+    50% { transform: translateY(calc(-50% - 6px)); }
+  }
+  
+  /* Swaying Profile Picture Frame */
   @keyframes sway {
     0% { transform: rotate(-6deg) translateY(0px); }
     50% { transform: rotate(6deg) translateY(-10px); }
@@ -230,13 +296,6 @@
     display: block;
   }
 
-  h1{
-    font-family: var(--font-display);
-    font-size: clamp(2.1rem, 5vw, 3rem);
-    line-height: 1.08;
-    margin: 0 0 12px;
-    font-weight: 700;
-  }
   .role{
     font-family: var(--font-display);
     color: var(--accent);
@@ -761,7 +820,7 @@
     .topnav { 
       justify-content: center; 
       gap: 12px 16px; 
-      flex-wrap: wrap; /* Fixes the mobile cutoff issue shown in the screenshot */
+      flex-wrap: wrap; 
     }
     .topbar-inner { 
       flex-direction: column; 
@@ -782,6 +841,21 @@
     }
     .ticket-meta {
       justify-content: center;
+    }
+    
+    /* Name & Tooltip Mobile Centering */
+    h1.interactive-name {
+      transform-origin: center top;
+    }
+    .drag-guide {
+      left: auto;
+      right: -10px;
+      top: 100%;
+      transform: translateY(0);
+    }
+    @keyframes pulse-guide {
+      0%, 100% { transform: translateY(0); }
+      50% { transform: translateY(-5px); }
     }
 
     /* Metric Grid Center Align */
@@ -878,7 +952,16 @@
     <div class="ticket-body">
       <div class="hero-content">
         <div class="hero-text">
-          <h1>Ruzsel John Nabong</h1>
+          
+          <!-- HANGING INTERACTIVE NAME -->
+          <div class="name-wrapper">
+            <h1 id="interactive-name" class="interactive-name">Ruzsel John Nabong</h1>
+            <div id="drag-guide" class="drag-guide">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="14" height="14"><path d="M12 19V5M5 12l7-7 7 7"/></svg>
+              Drag up to fix!
+            </div>
+          </div>
+
           <p class="role">Technical Support Engineer</p>
           <p class="summary">
             I sit at the point where APIs, front-end code, and frustrated customers meet — and I resolve it.
@@ -1361,6 +1444,89 @@
   document.querySelectorAll('.reveal').forEach(el => {
     observer.observe(el);
   });
+
+  // -- INTERACTIVE HANGING NAME --
+  const nameEl = document.getElementById('interactive-name');
+  const guideEl = document.getElementById('drag-guide');
+
+  // TRIGGER ANIMATION ON EVERY PAGE LOAD
+  // Wait 1.2s to let the main hero container animate in first, then drop the name
+  setTimeout(() => {
+    
+    // Add the "dropping" animation
+    nameEl.style.transition = 'transform 0.8s cubic-bezier(0.34, 1.56, 0.64, 1)';
+    nameEl.style.transform = 'rotate(16deg)';
+    nameEl.classList.add('hanging'); // Enables cursor & shows tooltip
+    
+    let currentAngle = 16;
+    let isDragging = false;
+    let startY = 0;
+    let startAngle = currentAngle;
+
+    const startDrag = (e) => {
+      if(nameEl.classList.contains('fixed')) return;
+      isDragging = true;
+      nameEl.style.transition = 'none'; 
+      startY = e.type.includes('touch') ? e.touches[0].clientY : e.clientY;
+      startAngle = currentAngle;
+    };
+
+    const doDrag = (e) => {
+      if (!isDragging) return;
+      // Prevent default scrolling when trying to pull the sign up on mobile
+      e.preventDefault(); 
+      const currentY = e.type.includes('touch') ? e.touches[0].clientY : e.clientY;
+      const deltaY = currentY - startY;
+      
+      // Moving up decreases the angle toward 0
+      currentAngle = startAngle + (deltaY * 0.15); 
+      
+      // Don't let it swing too far down past 25deg
+      if (currentAngle > 25) currentAngle = 25; 
+      
+      // If straightened perfectly (0 or less)
+      if (currentAngle <= 0) {
+        currentAngle = 0;
+        fixName();
+      } else {
+        nameEl.style.transform = `rotate(${currentAngle}deg)`;
+      }
+    };
+
+    const stopDrag = () => {
+      if (!isDragging) return;
+      isDragging = false;
+      // If user let go before fixing it, swing it back!
+      nameEl.style.transition = 'transform 0.6s cubic-bezier(0.34, 1.56, 0.64, 1)';
+      nameEl.style.transform = `rotate(16deg)`;
+      currentAngle = 16;
+    };
+
+    const fixName = () => {
+      isDragging = false;
+      // Satisfying snap-into-place transition
+      nameEl.style.transition = 'transform 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275)';
+      nameEl.style.transform = `rotate(0deg)`;
+      nameEl.classList.remove('hanging');
+      nameEl.classList.add('fixed');
+      
+      // Clean up event listeners so it doesn't move anymore
+      window.removeEventListener('mousemove', doDrag);
+      window.removeEventListener('mouseup', stopDrag);
+      window.removeEventListener('touchmove', doDrag);
+      window.removeEventListener('touchend', stopDrag);
+    };
+
+    // Attach event listeners for mouse and touch
+    nameEl.addEventListener('mousedown', startDrag);
+    window.addEventListener('mousemove', doDrag, { passive: false });
+    window.addEventListener('mouseup', stopDrag);
+    
+    nameEl.addEventListener('touchstart', startDrag, { passive: false });
+    window.addEventListener('touchmove', doDrag, { passive: false });
+    window.addEventListener('touchend', stopDrag);
+
+  }, 1200);
 
   // -- LIGHTBOX LOGIC --
   function openLightbox(src, title, desc) {
