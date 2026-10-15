@@ -7,7 +7,8 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
 <style>
-  :root{
+  :root {
+    /* Dark Mode (Default) */
     --bg: #0D1117;
     --surface: #141A21;
     --surface-2: #1B232C;
@@ -17,9 +18,39 @@
     --accent: #46D6C4;
     --accent-dim: #2A5F5A;
     --warn: #F0B429;
+    --topbar-bg: rgba(13, 17, 23, 0.9);
+    --accent-glow: rgba(70, 214, 196, 0.15);
+    --accent-glow-2: rgba(70, 214, 196, 0.12);
+    --badge-bg: rgba(13, 17, 23, 0.85);
+    --lightbox-bg: rgba(8, 11, 15, 0.92);
+    --btn-text: #06211D;
+    --btn-hover: #5EE2D1;
+    --shadow: rgba(0,0,0,0.4);
+
     --font-display: 'Space Grotesk', sans-serif;
     --font-mono: 'JetBrains Mono', monospace;
     --font-body: 'Inter', sans-serif;
+  }
+
+  [data-theme="light"] {
+    /* Light Mode */
+    --bg: #F9FAFB;
+    --surface: #FFFFFF;
+    --surface-2: #F3F4F6;
+    --line: #E5E7EB;
+    --text: #111827;
+    --text-muted: #6B7280;
+    --accent: #0D9488; 
+    --accent-dim: #99F6E4;
+    --warn: #D97706;
+    --topbar-bg: rgba(255, 255, 255, 0.9);
+    --accent-glow: rgba(13, 148, 136, 0.15);
+    --accent-glow-2: rgba(13, 148, 136, 0.12);
+    --badge-bg: rgba(255, 255, 255, 0.85);
+    --lightbox-bg: rgba(249, 250, 251, 0.92);
+    --btn-text: #FFFFFF;
+    --btn-hover: #0F766E;
+    --shadow: rgba(0,0,0,0.08);
   }
 
   *{ box-sizing: border-box; }
@@ -30,10 +61,7 @@
     color: var(--text);
     font-family: var(--font-body);
     line-height: 1.55;
-  }
-  @media (prefers-reduced-motion: reduce){
-    html{ scroll-behavior: auto; }
-    *{ animation-duration: 0.001ms !important; transition-duration: 0.001ms !important; }
+    transition: background 0.3s ease, color 0.3s ease;
   }
 
   a{ color: inherit; }
@@ -49,9 +77,10 @@
   .topbar{
     border-bottom: 1px solid var(--line);
     position: sticky; top:0;
-    background: rgba(13,17,23,0.9);
+    background: var(--topbar-bg);
     backdrop-filter: blur(6px);
     z-index: 10;
+    transition: background 0.3s ease, border-color 0.3s ease;
   }
   .topbar-inner{
     display:flex; align-items:center; justify-content:space-between;
@@ -64,9 +93,34 @@
     letter-spacing: 0.02em;
   }
   .brand strong{ color: var(--text); }
-  .topnav{ display:flex; gap: 22px; font-size: 14px; }
-  .topnav a{ text-decoration:none; color: var(--text-muted); }
+  .topnav{ display:flex; gap: 22px; font-size: 14px; align-items: center; }
+  .topnav a{ text-decoration:none; color: var(--text-muted); transition: color 0.2s ease;}
   .topnav a:hover{ color: var(--text); }
+
+  /* Theme Toggle Button */
+  .theme-toggle {
+    background: none;
+    border: none;
+    padding: 4px;
+    cursor: pointer;
+    color: var(--text-muted);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: color 0.2s ease;
+    margin-left: 8px;
+  }
+  .theme-toggle:hover {
+    color: var(--text);
+  }
+  .theme-toggle svg {
+    width: 18px;
+    height: 18px;
+  }
+  :root .sun-icon { display: block; }
+  :root .moon-icon { display: none; }
+  [data-theme="light"] .sun-icon { display: none; }
+  [data-theme="light"] .moon-icon { display: block; }
 
   /* ---------- hero / ticket header ---------- */
   .ticket{
@@ -75,6 +129,7 @@
     border-radius: 10px;
     background: var(--surface);
     overflow: hidden;
+    transition: background 0.3s ease, border-color 0.3s ease;
   }
   .ticket-meta{
     display:flex; flex-wrap: wrap; gap: 10px 22px;
@@ -84,6 +139,7 @@
     font-size: 12.5px;
     color: var(--text-muted);
     background: var(--surface-2);
+    transition: background 0.3s ease, border-color 0.3s ease;
   }
   .status-pill{
     display:inline-flex; align-items:center; gap:6px;
@@ -97,10 +153,60 @@
   .status-pill::before{
     content:''; width:6px; height:6px; border-radius:50%;
     background: var(--accent);
-    box-shadow: 0 0 0 3px rgba(70,214,196,0.15);
+    box-shadow: 0 0 0 3px var(--accent-glow);
   }
 
   .ticket-body{ padding: 36px 22px 32px; }
+  
+  /* Hero Content Layout */
+  .hero-content {
+    display: flex;
+    align-items: flex-start; /* Aligns items to the top instead of centering */
+    justify-content: space-between;
+    gap: 32px;
+  }
+  @media (max-width: 640px) {
+    .hero-content {
+      flex-direction: column-reverse;
+      align-items: flex-start;
+    }
+  }
+  .hero-text {
+    flex: 1;
+  }
+  .hero-image {
+    flex-shrink: 0;
+  }
+  
+  /* Swaying Frame */
+  @keyframes sway {
+    0% { transform: rotate(-6deg) translateY(0px); }
+    50% { transform: rotate(6deg) translateY(-10px); }
+    100% { transform: rotate(-6deg) translateY(0px); }
+  }
+  .swaying-frame {
+    width: 140px;
+    height: 140px;
+    border-radius: 50%; /* Make it circular or change to 16px for a square frame */
+    padding: 6px;
+    background: var(--surface-2);
+    border: 1px solid var(--line);
+    box-shadow: 0 12px 24px var(--shadow);
+    /* Noticeable, infinite animation */
+    animation: sway 4s ease-in-out infinite; 
+    transform-origin: top center;
+    transition: background 0.3s ease, border-color 0.3s ease, box-shadow 0.3s ease;
+    display: block;
+    margin-top: 4px; /* Tiny adjustment to perfectly visually align with the cap-height of the h1 text */
+  }
+  .swaying-frame img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    border-radius: 50%; /* Match frame border-radius */
+    display: block;
+  }
+
   h1{
     font-family: var(--font-display);
     font-size: clamp(2.1rem, 5vw, 3rem);
@@ -132,19 +238,19 @@
     text-decoration:none;
     font-size: 13.5px;
     color: var(--text);
-    transition: border-color 0.15s ease, color 0.15s ease;
+    transition: border-color 0.15s ease, color 0.15s ease, background 0.15s ease;
   }
   .contact-row a:hover{ border-color: var(--accent); color: var(--accent); }
   .contact-row a.cv-btn{
     background: var(--accent);
-    color: #06211D;
+    color: var(--btn-text);
     border-color: var(--accent);
     font-weight: 600;
   }
   .contact-row a.cv-btn:hover{
-    background: #5EE2D1;
-    border-color: #5EE2D1;
-    color: #06211D;
+    background: var(--btn-hover);
+    border-color: var(--btn-hover);
+    color: var(--btn-text);
   }
   .contact-row svg{ width:15px; height:15px; flex-shrink:0; }
 
@@ -158,6 +264,7 @@
     border-radius: 10px;
     overflow: hidden;
     margin-top: 24px;
+    transition: background 0.3s ease, border-color 0.3s ease;
   }
   @media (max-width: 640px){ .metrics-grid{ grid-template-columns: repeat(2, 1fr); } }
   .metric-card{
@@ -166,6 +273,7 @@
     display: flex;
     flex-direction: column;
     justify-content: space-between;
+    transition: background 0.3s ease;
   }
   .metric-value{
     font-family: var(--font-display);
@@ -214,6 +322,7 @@
   }
   .section-head .rule{
     flex:1; height:1px; background: var(--line);
+    transition: background 0.3s ease;
   }
 
   /* ---------- experience timeline ---------- */
@@ -240,10 +349,11 @@
     border-radius: 50%;
     background: var(--bg);
     border: 2px solid var(--accent-dim);
+    transition: background 0.3s ease;
   }
   .entry.current::before{
     border-color: var(--accent);
-    box-shadow: 0 0 0 4px rgba(70,214,196,0.12);
+    box-shadow: 0 0 0 4px var(--accent-glow-2);
   }
   .entry-head{
     display:flex; flex-wrap: wrap; align-items: baseline;
@@ -270,6 +380,7 @@
   }
   .tier.t-enterprise{ color: var(--accent); border-color: var(--accent-dim); }
   .tier.t-premium{ color: var(--warn); border-color: #5c4a1c; }
+  [data-theme="light"] .tier.t-premium { border-color: #FCD34D; }
   .entry p{
     margin: 0;
     color: var(--text-muted);
@@ -292,7 +403,7 @@
     overflow: hidden;
     display: flex;
     flex-direction: column;
-    transition: transform 0.2s ease, border-color 0.2s ease;
+    transition: transform 0.2s ease, border-color 0.2s ease, background 0.3s ease;
     cursor: pointer;
   }
   .img-card:hover{
@@ -305,6 +416,7 @@
     border-bottom: 1px solid var(--line);
     overflow: hidden;
     position: relative;
+    transition: background 0.3s ease, border-color 0.3s ease;
   }
   .img-container img{
     width: 100%;
@@ -322,7 +434,7 @@
   .zoom-badge{
     position: absolute;
     bottom: 10px; right: 10px;
-    background: rgba(13, 17, 23, 0.85);
+    background: var(--badge-bg);
     color: var(--accent);
     font-family: var(--font-mono);
     font-size: 11px;
@@ -351,7 +463,7 @@
   .lightbox-modal{
     position: fixed;
     top: 0; left: 0; width: 100%; height: 100%;
-    background: rgba(8, 11, 15, 0.92);
+    background: var(--lightbox-bg);
     backdrop-filter: blur(8px);
     z-index: 100;
     display: none;
@@ -359,7 +471,7 @@
     justify-content: center;
     padding: 24px;
     opacity: 0;
-    transition: opacity 0.25s ease;
+    transition: opacity 0.25s ease, background 0.3s ease;
   }
   .lightbox-modal.active{
     display: flex;
@@ -374,6 +486,9 @@
     overflow: hidden;
     position: relative;
     box-shadow: 0 20px 40px rgba(0,0,0,0.6);
+  }
+  [data-theme="light"] .lightbox-content {
+    box-shadow: 0 20px 40px rgba(0,0,0,0.1);
   }
   .lightbox-body{
     max-height: 70vh;
@@ -440,6 +555,7 @@
     display: flex;
     align-items: center;
     gap: 14px;
+    transition: background 0.3s ease, border-color 0.3s ease;
   }
   .tech-icon{
     width: 40px; height: 40px;
@@ -452,6 +568,7 @@
     font-weight: 700;
     color: var(--accent);
     flex-shrink: 0;
+    transition: background 0.3s ease, border-color 0.3s ease;
   }
   .tech-details h4{
     margin: 0 0 2px;
@@ -473,6 +590,7 @@
     padding: 22px 24px;
     display:flex; justify-content: space-between; align-items:flex-start;
     flex-wrap: wrap; gap: 10px;
+    transition: background 0.3s ease, border-color 0.3s ease;
   }
   .edu-card h3{
     font-family: var(--font-display);
@@ -504,6 +622,7 @@
     padding: 40px 0 60px;
     border-top: 1px solid var(--line);
     text-align: center;
+    transition: border-color 0.3s ease;
   }
   .cta-row{
     display: flex;
@@ -515,13 +634,14 @@
     display:inline-flex; align-items:center; gap:8px;
     padding: 12px 22px;
     background: var(--accent);
-    color: #06211D;
+    color: var(--btn-text);
     border-radius: 8px;
     text-decoration:none;
     font-weight: 600;
     font-size: 14.5px;
+    transition: background 0.15s ease;
   }
-  .cta:hover{ background: #5EE2D1; }
+  .cta:hover{ background: var(--btn-hover); }
   .cta.secondary{
     background: transparent;
     color: var(--text);
@@ -530,6 +650,7 @@
   .cta.secondary:hover{
     border-color: var(--accent);
     color: var(--accent);
+    background: transparent;
   }
   footer .fine{
     margin-top: 22px;
@@ -550,6 +671,25 @@
       <a href="#skills">Skills</a>
       <a href="#education">Education</a>
       <a href="#contact">Contact</a>
+      <!-- THEME TOGGLE BUTTON -->
+      <button id="theme-toggle" class="theme-toggle" aria-label="Toggle Theme">
+        <!-- Sun icon (shows in dark mode) -->
+        <svg class="sun-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <circle cx="12" cy="12" r="5"></circle>
+          <line x1="12" y1="1" x2="12" y2="3"></line>
+          <line x1="12" y1="21" x2="12" y2="23"></line>
+          <line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line>
+          <line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line>
+          <line x1="1" y1="12" x2="3" y2="12"></line>
+          <line x1="21" y1="12" x2="23" y2="12"></line>
+          <line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line>
+          <line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line>
+        </svg>
+        <!-- Moon icon (shows in light mode) -->
+        <svg class="moon-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path>
+        </svg>
+      </button>
     </nav>
   </div>
 </div>
@@ -562,31 +702,41 @@
       <span class="status-pill">OPEN TO OPPORTUNITIES</span>
     </div>
     <div class="ticket-body">
-      <h1>Ruzsel John Nabong</h1>
-      <p class="role">Technical Support Engineer</p>
-      <p class="summary">
-        I sit at the point where APIs, front-end code, and frustrated customers meet — and I resolve it.
-        Four years across three escalation tiers at Yotpo, taming reviews integrations built on
-        HTML, CSS, JavaScript and REST APIs, and closing the loop with engineering when the fix
-        needs to go deeper than a support macro.
-      </p>
-      <div class="contact-row">
-        <a href="Ruzsel_Nabong_CV.pdf" download="Ruzsel_Nabong_CV.pdf" class="cv-btn">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
-          Download CV
-        </a>
-        <a href="tel:+639182793213">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72c.127.96.361 1.903.7 2.81a2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0 1 22 16.92z"/></svg>
-          +63 918 279 3213
-        </a>
-        <a href="mailto:ruzselnabong0@gmail.com">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 4h16v16H4z"/><path d="M22 6l-10 7L2 6"/></svg>
-          ruzselnabong0@gmail.com
-        </a>
-        <a href="https://www.linkedin.com/in/ruzsel-john-nabong-982562229" target="_blank" rel="noopener">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M16 8a6 6 0 0 1 6 6v7h-4v-7a2 2 0 0 0-2-2 2 2 0 0 0-2 2v7h-4v-7a6 6 0 0 1 6-6z"/><rect x="2" y="9" width="4" height="12"/><circle cx="4" cy="4" r="2"/></svg>
-          LinkedIn
-        </a>
+      <div class="hero-content">
+        <div class="hero-text">
+          <h1>Ruzsel John Nabong</h1>
+          <p class="role">Technical Support Engineer</p>
+          <p class="summary">
+            I sit at the point where APIs, front-end code, and frustrated customers meet — and I resolve it.
+            Four years across three escalation tiers at Yotpo, taming reviews integrations built on
+            HTML, CSS, JavaScript and REST APIs, and closing the loop with engineering when the fix
+            needs to go deeper than a support macro.
+          </p>
+          <div class="contact-row">
+            <a href="Ruzsel_Nabong_CV.pdf" download="Ruzsel_Nabong_CV.pdf" class="cv-btn">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+              Download CV
+            </a>
+            <a href="tel:+639182793213">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72c.127.96.361 1.903.7 2.81a2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0 1 22 16.92z"/></svg>
+              +63 918 279 3213
+            </a>
+            <a href="mailto:ruzselnabong0@gmail.com">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 4h16v16H4z"/><path d="M22 6l-10 7L2 6"/></svg>
+              ruzselnabong0@gmail.com
+            </a>
+            <a href="https://www.linkedin.com/in/ruzsel-john-nabong-982562229" target="_blank" rel="noopener">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M16 8a6 6 0 0 1 6 6v7h-4v-7a2 2 0 0 0-2-2 2 2 0 0 0-2 2v7h-4v-7a6 6 0 0 1 6-6z"/><rect x="2" y="9" width="4" height="12"/><circle cx="4" cy="4" r="2"/></svg>
+              LinkedIn
+            </a>
+          </div>
+        </div>
+        
+        <div class="hero-image">
+          <div class="swaying-frame">
+            <img src="profile.jpg" alt="Ruzsel John Nabong">
+          </div>
+        </div>
       </div>
     </div>
   </div>
@@ -957,6 +1107,28 @@
 </div>
 
 <script>
+  // -- THEME TOGGLE LOGIC --
+  const themeToggleBtn = document.getElementById('theme-toggle');
+  const currentTheme = localStorage.getItem('portfolio-theme');
+
+  // Check saved theme on load
+  if (currentTheme) {
+    document.documentElement.setAttribute('data-theme', currentTheme);
+  }
+
+  // Toggle button event
+  themeToggleBtn.addEventListener('click', () => {
+    let theme = document.documentElement.getAttribute('data-theme');
+    if (theme === 'light') {
+      document.documentElement.removeAttribute('data-theme');
+      localStorage.setItem('portfolio-theme', 'dark');
+    } else {
+      document.documentElement.setAttribute('data-theme', 'light');
+      localStorage.setItem('portfolio-theme', 'light');
+    }
+  });
+
+  // -- LIGHTBOX LOGIC --
   function openLightbox(src, title, desc) {
     const modal = document.getElementById('lightbox');
     document.getElementById('lightbox-img').src = src;
