@@ -55,6 +55,8 @@
 
   *{ box-sizing: border-box; }
   html{ scroll-behavior: smooth; }
+  
+  /* Scrolling is locked by JS initially */
   body{
     margin:0;
     background: var(--bg);
@@ -62,6 +64,7 @@
     font-family: var(--font-body);
     line-height: 1.55;
     transition: background 0.3s ease, color 0.3s ease;
+    overflow: hidden; 
   }
 
   a{ color: inherit; }
@@ -73,7 +76,7 @@
     padding: 0 28px;
   }
 
-  /* ---------- Scroll Animations (Dynamic Types) ---------- */
+  /* ---------- Scroll Animations ---------- */
   .reveal {
     opacity: 0;
     transition: opacity 1s cubic-bezier(0.16, 1, 0.3, 1), transform 1s cubic-bezier(0.16, 1, 0.3, 1);
@@ -195,81 +198,43 @@
   }
   .hero-image {
     flex-shrink: 0;
-    margin-right: 38px; /* Added desktop margin */
+    margin-right: 38px;
+    position: relative;
+    width: 180px;
+    height: 180px;
   }
 
-  /* ---------- Interactive Hanging Name ---------- */
-  .name-wrapper {
-    position: relative;
-    display: inline-block;
-    margin: 0 0 12px;
-  }
-  h1.interactive-name {
-    font-family: var(--font-display);
-    font-size: clamp(2.1rem, 5vw, 3rem);
-    line-height: 1.08;
-    font-weight: 700;
-    margin: 0;
-    transform-origin: top left;
-    user-select: none;
-    -webkit-user-select: none;
-    touch-action: none;
-    position: relative;
-    z-index: 2;
-    /* Starts straight */
-    transform: rotate(0deg);
-  }
-  /* Hanging State added via JS */
-  h1.interactive-name.hanging {
-    cursor: grab;
-  }
-  h1.interactive-name.hanging:active {
-    cursor: grabbing;
-  }
-  h1.interactive-name.fixed {
-    cursor: default;
-  }
-  
-  /* Guide/Tooltip Tool placed on the right side */
-  .drag-guide {
+  /* Target Slot where profile belongs */
+  .profile-target-slot {
     position: absolute;
-    left: calc(100% + 16px);
-    top: 50%;
-    transform: translateY(-50%);
-    font-family: var(--font-mono);
-    font-size: 13px;
-    font-weight: 600;
-    color: var(--warn);
+    top: 0; left: 0;
+    width: 180px; height: 180px;
+    border-radius: 50%;
+    border: 2px dashed var(--accent);
+    background: rgba(70, 214, 196, 0.05);
     display: flex;
     align-items: center;
-    gap: 6px;
-    opacity: 0;
-    pointer-events: none;
-    transition: opacity 0.3s ease;
-    white-space: nowrap;
-    z-index: 1;
+    justify-content: center;
+    color: var(--accent);
+    font-family: var(--font-mono);
+    font-size: 12px;
+    text-align: center;
+    padding: 12px;
+    box-shadow: 0 0 15px var(--accent-glow);
+    animation: target-pulse 1.5s infinite alternate;
   }
-  [data-theme="light"] .drag-guide {
-    color: #D97706;
+  @keyframes target-pulse {
+    from { opacity: 0.4; transform: scale(0.98); }
+    to { opacity: 0.9; transform: scale(1.02); }
   }
-  
-  /* Show Guide ONLY when name is hanging */
-  h1.interactive-name.hanging ~ .drag-guide {
-    opacity: 1;
-    animation: pulse-guide 1.5s infinite;
-  }
-  
-  @keyframes pulse-guide {
-    0%, 100% { transform: translateY(-50%); }
-    50% { transform: translateY(calc(-50% - 6px)); }
-  }
-  
-  /* Swaying Profile Picture Frame */
+
+  /* Interactive Falling/Swaying Profile Frame */
   @keyframes sway {
     0% { transform: rotate(-6deg) translateY(0px); }
     50% { transform: rotate(6deg) translateY(-10px); }
     100% { transform: rotate(-6deg) translateY(0px); }
   }
+  
   .swaying-frame {
     width: 180px;
     height: 180px;
@@ -278,23 +243,74 @@
     background: var(--surface-2);
     border: 1px solid var(--line);
     box-shadow: 0 12px 24px var(--shadow);
-    animation: sway 4s ease-in-out infinite; 
-    transform-origin: top center;
-    transition: background 0.3s ease, border-color 0.3s ease, box-shadow 0.3s ease, transform 0.2s ease;
     display: block;
-    margin-top: 4px;
+    cursor: grab;
+    user-select: none;
+    touch-action: none;
+    z-index: 50;
+  }
+
+  .swaying-frame.swaying {
+    animation: sway 4s ease-in-out infinite;
     cursor: pointer;
   }
+
+  .swaying-frame:active {
+    cursor: grabbing;
+  }
+
   .swaying-frame:hover {
     border-color: var(--accent);
     box-shadow: 0 12px 24px var(--accent-glow);
   }
+
   .swaying-frame img {
     width: 100%;
     height: 100%;
     object-fit: cover;
     border-radius: 50%;
     display: block;
+    pointer-events: none;
+  }
+
+  /* Help Banner overlay on fallen avatar */
+  .help-me-banner {
+    position: absolute;
+    bottom: calc(100% + 12px);
+    left: 50%;
+    transform: translateX(-50%);
+    background: var(--warn);
+    color: #111827;
+    font-family: var(--font-mono);
+    font-size: 12px;
+    font-weight: 700;
+    padding: 6px 14px;
+    border-radius: 20px;
+    white-space: nowrap;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+    pointer-events: none;
+    animation: banner-bounce 1s infinite alternate;
+  }
+  .help-me-banner::after {
+    content: '';
+    position: absolute;
+    top: 100%; left: 50%;
+    transform: translateX(-50%);
+    border-width: 6px;
+    border-style: solid;
+    border-color: var(--warn) transparent transparent transparent;
+  }
+  @keyframes banner-bounce {
+    from { transform: translateX(-50%) translateY(0); }
+    to { transform: translateX(-50%) translateY(-6px); }
+  }
+
+  h1{
+    font-family: var(--font-display);
+    font-size: clamp(2.1rem, 5vw, 3rem);
+    line-height: 1.08;
+    margin: 0 0 12px;
+    font-weight: 700;
   }
 
   .role{
@@ -838,28 +854,13 @@
       text-align: center;
     }
     .hero-image {
-      margin-right: 0; /* Reset desktop margin for proper centering on mobile */
+      margin-right: 0;
     }
     .contact-row {
       justify-content: center;
     }
     .ticket-meta {
       justify-content: center;
-    }
-    
-    /* Name & Tooltip Mobile Centering */
-    h1.interactive-name {
-      transform-origin: center top;
-    }
-    .drag-guide {
-      left: auto;
-      right: -10px;
-      top: 100%;
-      transform: translateY(0);
-    }
-    @keyframes pulse-guide {
-      0%, 100% { transform: translateY(0); }
-      50% { transform: translateY(-5px); }
     }
 
     /* Metric Grid Center Align */
@@ -948,7 +949,7 @@
 
 <div class="wrap">
 
-  <!-- HERO (Drops down into view) -->
+  <!-- HERO -->
   <div class="ticket reveal reveal-down">
     <div class="ticket-meta">
       <span class="status-pill">OPEN TO OPPORTUNITIES</span>
@@ -956,16 +957,7 @@
     <div class="ticket-body">
       <div class="hero-content">
         <div class="hero-text">
-          
-          <!-- HANGING INTERACTIVE NAME -->
-          <div class="name-wrapper">
-            <h1 id="interactive-name" class="interactive-name">Ruzsel John Nabong</h1>
-            <div id="drag-guide" class="drag-guide">
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="14" height="14"><path d="M12 19V5M5 12l7-7 7 7"/></svg>
-              Drag up to fix!
-            </div>
-          </div>
-
+          <h1>Ruzsel John Nabong</h1>
           <p class="role">Technical Support Engineer</p>
           <p class="summary">
             I sit at the point where APIs, front-end code, and frustrated customers meet — and I resolve it.
@@ -993,8 +985,15 @@
           </div>
         </div>
         
-        <div class="hero-image">
-          <div class="swaying-frame" onclick="openLightbox('profile.jpg', 'Ruzsel John Nabong', 'Technical Support Engineer')">
+        <div class="hero-image" id="profile-container">
+          <!-- Target Slot ring where profile belongs -->
+          <div class="profile-target-slot" id="target-slot">
+            Drag Profile Picture Here
+          </div>
+          
+          <!-- Avatar Frame -->
+          <div class="swaying-frame" id="profile-avatar">
+            <div class="help-me-banner" id="help-banner" style="display:none;">Please help me to put me back!</div>
             <img src="profile.jpg" alt="Ruzsel John Nabong">
           </div>
         </div>
@@ -1449,91 +1448,128 @@
     observer.observe(el);
   });
 
-  // -- INTERACTIVE HANGING NAME --
-  const nameEl = document.getElementById('interactive-name');
-  const guideEl = document.getElementById('drag-guide');
+  // -- FALLING PROFILE MINI-GAME --
+  const avatar = document.getElementById('profile-avatar');
+  const targetSlot = document.getElementById('target-slot');
+  const helpBanner = document.getElementById('help-banner');
 
-  // TRIGGER ANIMATION ON EVERY PAGE LOAD
-  // Wait 1.2s to let the main hero container animate in first, then drop the name
-  setTimeout(() => {
-    
-    // Add the "dropping" animation
-    nameEl.style.transition = 'transform 0.8s cubic-bezier(0.34, 1.56, 0.64, 1)';
-    nameEl.style.transform = 'rotate(16deg)';
-    nameEl.classList.add('hanging'); // Enables cursor & shows tooltip
-    
-    let currentAngle = 16;
-    let isDragging = false;
-    let startY = 0;
-    let startAngle = currentAngle;
+  let isRestored = false;
+  let isDragging = false;
+  let offsetX = 0;
+  let offsetY = 0;
 
-    const startDrag = (e) => {
-      if(nameEl.classList.contains('fixed')) return;
-      isDragging = true;
-      nameEl.style.transition = 'none'; 
-      startY = e.type.includes('touch') ? e.touches[0].clientY : e.clientY;
-      startAngle = currentAngle;
-    };
+  // On page load, execute the falling sequence
+  window.addEventListener('load', () => {
+    // Disable scrolling until profile is put back
+    document.body.style.overflow = 'hidden';
 
-    const doDrag = (e) => {
-      if (!isDragging) return;
-      // Prevent default scrolling when trying to pull the sign up on mobile
-      e.preventDefault(); 
-      const currentY = e.type.includes('touch') ? e.touches[0].clientY : e.clientY;
-      const deltaY = currentY - startY;
-      
-      // Moving up decreases the angle toward 0
-      currentAngle = startAngle + (deltaY * 0.15); 
-      
-      // Don't let it swing too far down past 25deg
-      if (currentAngle > 25) currentAngle = 25; 
-      
-      // If straightened perfectly (0 or less)
-      if (currentAngle <= 0) {
-        currentAngle = 0;
-        fixName();
-      } else {
-        nameEl.style.transform = `rotate(${currentAngle}deg)`;
-      }
-    };
+    // Calculate falling destination (bottom-right corner)
+    const initialRect = avatar.getBoundingClientRect();
+    const targetX = window.innerWidth - initialRect.width - 24 - initialRect.left;
+    const targetY = window.innerHeight - initialRect.height - 24 - initialRect.top;
 
-    const stopDrag = () => {
-      if (!isDragging) return;
-      isDragging = false;
-      // If user let go before fixing it, swing it back!
-      nameEl.style.transition = 'transform 0.6s cubic-bezier(0.34, 1.56, 0.64, 1)';
-      nameEl.style.transform = `rotate(16deg)`;
-      currentAngle = 16;
-    };
+    // Trigger fall & bounce animation
+    setTimeout(() => {
+      avatar.style.transition = 'transform 1.2s cubic-bezier(0.25, 1, 0.5, 1)';
+      avatar.style.transform = `translate(${targetX}px, ${targetY}px) rotate(15deg)`;
 
-    const fixName = () => {
-      isDragging = false;
-      // Satisfying snap-into-place transition
-      nameEl.style.transition = 'transform 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275)';
-      nameEl.style.transform = `rotate(0deg)`;
-      nameEl.classList.remove('hanging');
-      nameEl.classList.add('fixed');
-      
-      // Clean up event listeners so it doesn't move anymore
-      window.removeEventListener('mousemove', doDrag);
-      window.removeEventListener('mouseup', stopDrag);
-      window.removeEventListener('touchmove', doDrag);
-      window.removeEventListener('touchend', stopDrag);
-    };
+      // Show banner after falling
+      setTimeout(() => {
+        helpBanner.style.display = 'block';
+      }, 1200);
+    }, 600);
+  });
 
-    // Attach event listeners for mouse and touch
-    nameEl.addEventListener('mousedown', startDrag);
-    window.addEventListener('mousemove', doDrag, { passive: false });
-    window.addEventListener('mouseup', stopDrag);
-    
-    nameEl.addEventListener('touchstart', startDrag, { passive: false });
-    window.addEventListener('touchmove', doDrag, { passive: false });
-    window.addEventListener('touchend', stopDrag);
+  // Drag and Drop Logic
+  const startDrag = (e) => {
+    if (isRestored) return;
+    isDragging = true;
 
-  }, 1200);
+    avatar.style.transition = 'none';
+    const clientX = e.type.includes('touch') ? e.touches[0].clientX : e.clientX;
+    const clientY = e.type.includes('touch') ? e.touches[0].clientY : e.clientY;
+
+    const currentRect = avatar.getBoundingClientRect();
+    offsetX = clientX - currentRect.left;
+    offsetY = clientY - currentRect.top;
+  };
+
+  const doDrag = (e) => {
+    if (!isDragging || isRestored) return;
+    e.preventDefault();
+
+    const clientX = e.type.includes('touch') ? e.touches[0].clientX : e.clientX;
+    const clientY = e.type.includes('touch') ? e.touches[0].clientY : e.clientY;
+
+    const initialRect = targetSlot.getBoundingClientRect();
+    const newX = clientX - offsetX - initialRect.left;
+    const newY = clientY - offsetY - initialRect.top;
+
+    avatar.style.transform = `translate(${newX}px, ${newY}px) rotate(5deg)`;
+  };
+
+  const stopDrag = () => {
+    if (!isDragging || isRestored) return;
+    isDragging = false;
+
+    // Check collision with target slot
+    const avatarRect = avatar.getBoundingClientRect();
+    const targetRect = targetSlot.getBoundingClientRect();
+
+    const distance = Math.hypot(
+      (avatarRect.left + avatarRect.width / 2) - (targetRect.left + targetRect.width / 2),
+      (avatarRect.top + avatarRect.height / 2) - (targetRect.top + targetRect.height / 2)
+    );
+
+    // If within 100px of the target center, snap into place!
+    if (distance < 100) {
+      restoreProfile();
+    } else {
+      // Return back to bottom right corner
+      const initialRect = targetSlot.getBoundingClientRect();
+      const targetX = window.innerWidth - avatarRect.width - 24 - initialRect.left;
+      const targetY = window.innerHeight - avatarRect.height - 24 - initialRect.top;
+
+      avatar.style.transition = 'transform 0.6s cubic-bezier(0.34, 1.56, 0.64, 1)';
+      avatar.style.transform = `translate(${targetX}px, ${targetY}px) rotate(15deg)`;
+    }
+  };
+
+  const restoreProfile = () => {
+    isRestored = true;
+    helpBanner.style.display = 'none';
+
+    // Snap cleanly to target
+    avatar.style.transition = 'transform 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275)';
+    avatar.style.transform = 'translate(0px, 0px) rotate(0deg)';
+
+    targetSlot.style.display = 'none';
+    avatar.classList.add('swaying');
+
+    // Unlock scrolling
+    document.body.style.overflow = 'auto';
+
+    // Remove drag listeners
+    avatar.removeEventListener('mousedown', startDrag);
+    window.removeEventListener('mousemove', doDrag);
+    window.removeEventListener('mouseup', stopDrag);
+
+    avatar.removeEventListener('touchstart', startDrag);
+    window.removeEventListener('touchmove', doDrag);
+    window.removeEventListener('touchend', stopDrag);
+  };
+
+  avatar.addEventListener('mousedown', startDrag);
+  window.addEventListener('mousemove', doDrag, { passive: false });
+  window.addEventListener('mouseup', stopDrag);
+
+  avatar.addEventListener('touchstart', startDrag, { passive: false });
+  window.addEventListener('touchmove', doDrag, { passive: false });
+  window.addEventListener('touchend', stopDrag);
 
   // -- LIGHTBOX LOGIC --
   function openLightbox(src, title, desc) {
+    if (!isRestored) return; // Only allow lightbox after profile is placed back
     const modal = document.getElementById('lightbox');
     document.getElementById('lightbox-img').src = src;
     document.getElementById('lightbox-title').textContent = title;
