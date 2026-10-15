@@ -195,6 +195,7 @@
   }
   .hero-image {
     flex-shrink: 0;
+    margin-right: 38px; /* Added desktop margin */
   }
 
   /* ---------- Interactive Hanging Name ---------- */
@@ -229,7 +230,7 @@
     cursor: default;
   }
   
-  /* Guide/Tooltip Tool */
+  /* Guide/Tooltip Tool placed on the right side */
   .drag-guide {
     position: absolute;
     left: calc(100% + 16px);
@@ -283,7 +284,6 @@
     display: block;
     margin-top: 4px;
     cursor: pointer;
-    margin-right: 38px;
   }
   .swaying-frame:hover {
     border-color: var(--accent);
@@ -836,6 +836,9 @@
       flex-direction: column-reverse;
       align-items: center;
       text-align: center;
+    }
+    .hero-image {
+      margin-right: 0; /* Reset desktop margin for proper centering on mobile */
     }
     .contact-row {
       justify-content: center;
