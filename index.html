@@ -16,12 +16,27 @@
 </script>
 <script>
   // Always start at the top, even after a reload or back/forward navigation
+  // Mobile browsers restore the old position late, so keep resetting briefly
+  // (until the visitor touches the page) instead of relying on a single call.
   if ('scrollRestoration' in history) history.scrollRestoration = 'manual';
-  function toTop() { window.scrollTo({ top: 0, left: 0, behavior: 'instant' }); }
+  var userInteracted = false;
+  ['touchstart', 'wheel', 'keydown', 'mousedown'].forEach(function (ev) {
+    window.addEventListener(ev, function () { userInteracted = true; }, { once: true, passive: true });
+  });
+  function toTop() {
+    if (userInteracted) return;
+    var root = document.documentElement;
+    root.style.scrollBehavior = 'auto'; // html has smooth scrolling; don't animate this
+    window.scrollTo(0, 0);
+    root.scrollTop = 0;
+    if (document.body) document.body.scrollTop = 0;
+    root.style.scrollBehavior = '';
+  }
   toTop();
   window.addEventListener('DOMContentLoaded', toTop);
   window.addEventListener('load', toTop);
-  window.addEventListener('pageshow', toTop);
+  window.addEventListener('pageshow', function (e) { if (e.persisted) userInteracted = false; toTop(); });
+  [50, 150, 300, 600, 1000].forEach(function (ms) { setTimeout(toTop, ms); });
 </script>
 <style>
   :root {
